@@ -1,0 +1,185 @@
+/**Grado de Desarrollo de Aplicaciones Web.
+ * DWEC - Unidad 5.
+ * Alumno: Santiago Rosado Ruiz.
+ * UT05 Práctica 5: Gestión de restaurantes - DOM y MVC.
+ */
+
+ 
+*{
+    margin: 0;
+    padding: 0;
+    
+}
+
+body{
+    height: 100vh;
+    display: grid;
+    grid-template-columns: auto ;
+    grid-template-rows: 16% 1fr auto;
+    grid-template-areas: "header" "main" "pie" ;
+}
+
+
+/*Estilo del encabezado.*/
+nav{
+    background-image: var(--bs-gradient);
+    
+    }
+.navbar{
+    --bs-navbar-color: none;
+}
+header{
+    grid-area: header;
+}
+
+.logo{
+    height: 4rem;
+}
+
+.navbar-nav .nav-link.active{
+    color: burlywood;
+}
+
+.navbar-nav{
+    --bs-nav-link-hover-color:rgb(243 242 232 / 80%);
+}
+
+.options{
+    right: 5%;
+    list-style-type: none;
+    position: relative;
+}
+
+.options li{
+    position: relative;
+}
+
+.options .submenu-left{
+    display:none;
+    position: absolute;
+    right: 100%;
+    top: -7px;
+    left: auto;
+}
+
+li:hover > .submenu-left{
+    display: block;
+      
+}
+
+.options li{
+    --bs-dropdown-link-hover-bg:#0d6efd;
+    --bs-dropdown-link-hover-color:white;
+}
+
+/*Contenido principal*/
+
+main{
+    grid-area: main;
+}
+
+#categories{
+    width: 99%;
+}
+
+#dish-list{
+    width: 99%;
+}
+
+.row{
+    justify-content: center;
+    gap: 2%;
+    row-gap: 1rem;
+    padding-top: 1%;
+    text-align: center;
+}
+
+.card img{
+    padding-top: 3% ;
+    height: 50%;
+}
+
+#dishes_cards{
+    margin-bottom: 2%;
+}
+
+.containerInformation{
+    display: flex;
+    width: 99%;
+    justify-content: center;
+}
+
+#card_dish{
+    width: 50%;
+}
+
+@keyframes background {
+    0% {
+        background-color: transparent;
+      }
+      100% {
+        background-color: #0d6efd;
+      }
+    }
+
+.border-animation {
+padding: 10px; 
+  animation-name: background;
+  animation-duration: 4s; 
+  animation-fill-mode: forwards; 
+  animation-iteration-count: 1; 
+  color: white; 
+}
+
+.description{
+    text-align: justify;
+}
+
+.breadcrumb{
+    --bs-breadcrumb-item-active-color: #0d6efd;
+}
+
+.breadcrumb a{
+    color: black;
+}
+
+/*Pie de página*/
+footer{
+grid-area: pie;
+background-image: var(--bs-gradient);
+}
+
+.direction{
+    padding-left: 2%;
+}
+
+.enlaces a,
+i:hover {
+    color: rgb(5, 5, 31);
+}
+
+.foot-content{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding-top: 1%;
+    
+}
+.social-media{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: center;
+}
+
+.icons{
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.social-media i {
+    padding-right: 5%;
+    font-size: 3em;
+    color: rgb(243, 235, 235);
+}
+
