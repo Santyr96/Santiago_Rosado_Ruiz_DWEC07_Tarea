@@ -662,7 +662,6 @@ class RestaurantsManager {
     /**Función que devuelve un iterable  que almacena los platos de una categoría. */
     * getDishesInCategory(category, orderFunction) {
         let positionCategory = this.#getPosition(this._category, category, Category);
-
         if (positionCategory !== -1) {
             let array = this._category[positionCategory].dishes;
             if (array.length === 0) {
@@ -835,6 +834,41 @@ class RestaurantsManager {
 
         return restaurant;
     }
+
+    dishInMenus(dish){
+        let menusWithDish = [];
+        let dishObject = this.getDishByName(dish);
+        if(!dishObject){
+            throw new DishNotExistInListException("El plato no existe en nuestra Base de datos.");
+        }
+        for (const currentMenu of this._menus) {
+            console.log(currentMenu.menu instanceof Menu);
+            let positionMenu = this.#getPosition(this._menus, currentMenu.menu, Menu);
+            let positionDish = this.#getDishPositionsinMenu(dishObject, this._menus[positionMenu]);
+            if (positionDish !== -1) {
+                menusWithDish.push(currentMenu.menu);
+            }
+        }
+        return menusWithDish;
+    }
+
+    dishInCategory(dish){
+        let categoryWithDish = [];
+        let dishObject = this.getDishByName(dish);
+        if(!dishObject){
+            throw new DishNotExistInListException("El plato no existe en nuestra Base de datos.");
+        }
+        for (const currentCategory of this._category) {
+            console.log(currentCategory.category instanceof Category);
+            let positionCategory = this.#getPosition(this._category, currentCategory.category, Category);
+            let positionDish = this.#getDishPositionsinCategory(dishObject, this._category[positionCategory]);
+            if (positionDish !== -1) {
+                categoryWithDish.push(currentCategory.category);
+            }
+        }
+        return categoryWithDish;
+    }
+    
 
 }
 

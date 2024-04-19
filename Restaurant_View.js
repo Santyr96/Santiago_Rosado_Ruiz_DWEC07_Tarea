@@ -6,7 +6,15 @@
 "use strict";
 
 import { Allergen, Category, Menu } from "./Objetos_restaurante.js";
-import { newDishValidation} from "./validation.js";
+import {
+  newDishValidation,
+  newCategoryValidation,
+  newRestaurantValidation,
+} from "./validation.js";
+import {
+  DishExistInListException,
+  ErrorExistenceElementException,
+} from "./Excepcion_gestion_restaurantes.js";
 
 /*Clase de la vista de nuestra web. Se encargará de visualizar el contenido obtenido del modelo, a través
 del controlador, en la web. */
@@ -100,6 +108,7 @@ class RestaurantView {
   showDishesRandom(dishes) {
     //Convertirmos en array el conjunto de platos.
     const dish = Array.from(dishes);
+
     //Creeamos un contenedor para mostrar los platos.
     const div = document.createElement("div");
     div.id = "dishes_cards";
@@ -111,6 +120,9 @@ class RestaurantView {
     //Bucle for para mostrar tres platos de manera aleatorioa.
     for (let index = 0; index < 3; index++) {
       const dish_random = dish[Math.floor(Math.random() * dish.length)];
+      const ingredientsList = Array.isArray(dish_random.ingredients)
+      ? dish_random.ingredients.join(", ")
+      : dish_random.ingredients;
       //Si disponemos de un plato, lo guardamos en una variable auxiliar para eliminarlo del array, de esta manera no se repetiran los platos.
       if (dish_random) {
         const aux_random = dish_random;
@@ -127,9 +139,7 @@ class RestaurantView {
         }">
       <div class="card-body">
         <h5 class="card-title">${dish_random.name}</h5>
-        <p class="card-text">Ingredientes: ${dish_random.ingredients.join(
-          ", "
-        )}</p>
+        <p class="card-text"><strong>Ingredientes:</strong> ${ingredientsList}</p>
         <a href="#" class="btn btn-primary" data-dish = "${
           dish_random.name
         }">Propiedades</a>
@@ -148,6 +158,8 @@ class RestaurantView {
     if (this.categories.children.length > 1) {
       this.categories.children[1].remove();
     }
+
+    
 
     //Creamos un contenedor para mostrar los platos.
     const container = document.createElement("div");
@@ -169,26 +181,50 @@ class RestaurantView {
     } else if (elem instanceof Menu) {
       div.insertAdjacentHTML("beforeend", `<h1>Platos del ${title} </h1>`);
     }
-
+    let ingredientList;
     //Insertamos las propiedades de los platos.
     for (const dish of dishes) {
+      ingredientList = Array.isArray(dish.ingredients)
+      ? dish.ingredients.join(", ")
+      : dish.ingredients;
       console.log(dish);
-      const ingredientsList = Array.isArray(dish.ingredients) ? dish.ingredients.join(", ") : dish.ingredients;
       div.insertAdjacentHTML(
         "beforeend",
-        `<div class="card" style="width: 18rem;">
-          <img src="${dish.image}" class="card-img-top" alt="${dish.name}">
-          <div class="card-body">
-            <h5 class="card-title">${dish.name}</h5>
-            <p class="card-text"><strong>Ingredientes:</strong> ${ingredientsList}</p>
-            <a href="#" class="btn btn-primary" data-dish="${dish.name}">Propiedades</a>
-          </div>
-        </div>`
+        `<div class="card"  style="width: 18rem;">
+      <img src="${dish.image}" class="card-img-top" alt="${dish.name}">
+      <div class="card-body">
+        <h5 class="card-title">${dish.name}</h5>
+        <p class="card-text"><strong>Ingredientes:</strong> ${ingredientList}</p>
+        <a href="#" class="btn btn-primary" data-dish="${
+          dish.name
+        }">Propiedades</a>
+      </div>
+    </div>`
       );
     }
 
     this.main.append(container);
     container.append(div);
+  }
+
+  //Método para indicar al usuario que no existen platos asignados a la categoría.
+  showNotDishes(error) {
+    //Limpiamos la zona central por si existen elementos.
+    this.main.replaceChildren();
+    if (this.categories.children.length > 1) {
+      this.categories.children[1].remove();
+    }
+    //Creamos un contenedor para mostrar los platos.
+    const div = document.createElement("div");
+    div.id = "dish-list";
+    div.classList.add("notDishes");
+    if (error) {
+      div.insertAdjacentHTML(
+        "beforeend",
+        `<h1>No se han encontrado platos</h1>`
+      );
+    }
+    this.main.append(div);
   }
 
   /**Método que muestra información sobre el plato clickeado */
@@ -218,7 +254,9 @@ class RestaurantView {
     const div = document.createElement("div");
     div.id = "card_dish";
     div.classList.add("row");
-    const ingredientsList = Array.isArray(dish.ingredients) ? dish.ingredients.join(", ") : dish.ingredients;
+    const ingredientsList = Array.isArray(dish.ingredients)
+      ? dish.ingredients.join(", ")
+      : dish.ingredients;
     div.insertAdjacentHTML(
       "beforeend",
 
@@ -264,6 +302,13 @@ class RestaurantView {
       }
     }
 
+    const containerForm = document.querySelector('.container.my-3');
+
+    if(containerForm){
+      containerForm.replaceChildren();
+    }
+
+
     //Creamos contenedores para mostrar las cards con la información de los restaurantes.
     const container = document.createElement("div");
     container.classList.add("containerInformation");
@@ -292,7 +337,13 @@ class RestaurantView {
       containerDish.append(container);
       container.append(div);
     }
-  }
+
+    if(containerForm){
+      containerForm.append(container);
+      container.append(div);
+    }
+    }
+  
 
   /**Método que se va a encargar de mostrar en el menú de opciones, los alérgenos de nuestra pagina. */
   showAllergenMenu(allergens) {
@@ -455,7 +506,7 @@ class RestaurantView {
   }
 
   //Método que muestra el formulario de creación de platos.
-  showDishCreationForm(categories,allergens) {
+  showDishCreationForm(categories, allergens) {
     this.main.replaceChildren();
     if (this.categories.children.length > 1)
       this.categories.children[1].remove();
@@ -548,7 +599,7 @@ class RestaurantView {
     }
 
     const npAllergen = container.querySelector("#npAllergen");
-    for(const allergen of allergens){
+    for (const allergen of allergens) {
       npAllergen.insertAdjacentHTML(
         "beforeend",
         `<option value="${allergen.name}">${allergen.name}</option>`
@@ -560,28 +611,28 @@ class RestaurantView {
 
   showRemoveDishForm(dishes) {
     this.main.replaceChildren();
-    if (this.categories.children.length > 1) this.categories.children[1].remove();
+    if (this.categories.children.length > 1)
+      this.categories.children[1].remove();
 
-  	const container = document.createElement('div');
-  	container.classList.add('container');
-  	container.classList.add('my-3');
-  	container.id = 'remove-dish';
+    const container = document.createElement("div");
+    container.classList.add("container");
+    container.classList.add("my-3");
+    container.id = "remove-dish";
 
     container.insertAdjacentHTML(
-      'afterbegin',
-      '<h1 class="display-5">Eliminar un plato</h1>',
+      "afterbegin",
+      '<h1 class="display-5">Eliminar un plato</h1>'
     );
 
-    const form = document.createElement('form');
-    form.name = 'fRemoveDish';
-    form.setAttribute('role', 'form');
-    form.setAttribute('novalidate', '');
-    form.classList.add('row');
-    form.classList.add('g-3');
-
+    const form = document.createElement("form");
+    form.name = "fRemoveDish";
+    form.setAttribute("role", "form");
+    form.setAttribute("novalidate", "");
+    form.classList.add("row");
+    form.classList.add("g-3");
 
     form.insertAdjacentHTML(
-      'beforeend',
+      "beforeend",
       `<div class="col-md-6 mb-3">
 				<label class="form-label" for="rpDishes">Elimina un plato</label>
 				<div class="input-group">
@@ -593,46 +644,49 @@ class RestaurantView {
 			</div>
       <div class="mb-12">
       <button class="btn btn-primary" name="eliminar" id="eliminar" type="submit">Eliminar</button>
-  </div>`,
+  </div>`
     );
-    const rpDishes = form.querySelector('#rpDishes');
+    const rpDishes = form.querySelector("#rpDishes");
     for (const dish of dishes) {
-      rpDishes.insertAdjacentHTML('beforeend', `<option value="${dish.name}">${dish.name}</option>`);
+      rpDishes.insertAdjacentHTML(
+        "beforeend",
+        `<option value="${dish.name}" data-dish="${dish.name}">${dish.name}</option>`
+      );
     }
 
     container.append(form);
     container.insertAdjacentHTML(
-      'beforeend',
-      '<div id="dish-list" class="container my-3"><div class="row"></div></div>',
+      "beforeend",
+      '<div id="dish-list" class="container my-3"><div class="row"></div></div>'
     );
 
-  	this.main.append(container);
+    this.main.append(container);
   }
 
-
-  showAssignDishesForm(dishes,menus) {
+  showAssignDishesForm(dishes, menus) {
     this.main.replaceChildren();
-    if (this.categories.children.length > 1) this.categories.children[1].remove();
+    if (this.categories.children.length > 1)
+      this.categories.children[1].remove();
 
-    const container = document.createElement('div');
-  	container.classList.add('container');
-  	container.classList.add('my-3');
-  	container.id = 'assign-dish';
+    const container = document.createElement("div");
+    container.classList.add("container");
+    container.classList.add("my-3");
+    container.id = "assign-dish";
 
     container.insertAdjacentHTML(
-      'afterbegin',
-      '<h1 class="display-5">Asignación y designación de platos a menus</h1>',
+      "afterbegin",
+      '<h1 class="display-5">Asignación y designación de platos a menus</h1>'
     );
 
-    const form = document.createElement('form');
-    form.name = 'fAssignDish';
-    form.setAttribute('role', 'form');
-    form.setAttribute('novalidate', '');
-    form.classList.add('row');
-    form.classList.add('g-3');
+    const form = document.createElement("form");
+    form.name = "fAssignDish";
+    form.setAttribute("role", "form");
+    form.setAttribute("novalidate", "");
+    form.classList.add("row");
+    form.classList.add("g-3");
 
     form.insertAdjacentHTML(
-      'beforeend',
+      "beforeend",
       `<div class="col-md-6 mb-3">
 				<label class="form-label" for="rpDishes">Asigna un plato a menu</label>
 				<div class="input-group">
@@ -648,44 +702,70 @@ class RestaurantView {
 				</div>
 			</div>
       <div class="mb-12">
-      <button class="btn btn-primary"  id="asignar" type="submit">Asignar</button>
+      <button class="btn btn-primary"  id="Asignar" type="submit">Asignar</button>
       <button class="btn btn-primary" " id="desasignar" type="submit">Desasignar</button>
   </div>
   
   <div id="menusList">
       <p>Menus donde se encuentra el plato</p>
-  </div>`,
+  </div>`
     );
 
-    const rpDishes = form.querySelector('#rpDishes');
+    const rpDishes = form.querySelector("#rpDishes");
     for (const dish of dishes) {
-      rpDishes.insertAdjacentHTML('beforeend', `<option value="${dish.name}">${dish.name}</option>`);
+      rpDishes.insertAdjacentHTML(
+        "beforeend",
+        `<option value="${dish.name}">${dish.name}</option>`
+      );
     }
 
-    const rpMenus = form.querySelector('#rpMenus');
+    const rpMenus = form.querySelector("#rpMenus");
     for (const menu of menus) {
-      rpMenus.insertAdjacentHTML('beforeend', `<option value="${menu.name}">${menu.name}</option>`);
+      rpMenus.insertAdjacentHTML(
+        "beforeend",
+        `<option value="${menu.name}">${menu.name}</option>`
+      );
     }
 
     this.main.append(container);
     container.append(form);
   }
 
-  //Método que muestra el modal que proporcionará retroalimentación al usuario.
-  showNewProductModal(done, dish, error) {
-    const messageModalContainer = document.getElementById('messageModal');
-    const messageModal = new bootstrap.Modal('#messageModal');
+  //Método para mostrar los menus dondse encuentran asignados los platos.
+  showMenusWithDish(dish, menus) {
+    const menusList = document.getElementById("menusList");
+    menusList.replaceChildren();
+    menusList.insertAdjacentHTML(
+      "afterbegin",
+      `<p>Menus donde se encuentra el plato <strong>${dish}</strong></p>`
+    );
 
-    const title = document.getElementById('messageModalTitle');
-    title.innerHTML = 'Plato creado';
-    const body = messageModalContainer.querySelector('.modal-body');
+    for (const menu of menus) {
+      menusList.insertAdjacentHTML(
+        "beforeend",
+        `<div class="col-md-4"><p><strong>${menu.name}</strong></p></div>`
+      );
+    }
+  }
+
+  //Método que muestra el modal que proporcionará retroalimentación al usuario.
+  showNewDishModal(done, dish, error) {
+    const messageModalContainer = document.getElementById("messageModal");
+    const messageModal = new bootstrap.Modal("#messageModal");
+
+    const title = document.getElementById("messageModalTitle");
+    title.innerHTML = "Plato creado";
+    const body = messageModalContainer.querySelector(".modal-body");
     body.replaceChildren();
     if (done) {
-      body.insertAdjacentHTML('afterbegin', `<div class="p-3">El plato <strong>${dish.name}</strong>  ha sido creada correctamente.</div>`);
+      body.insertAdjacentHTML(
+        "afterbegin",
+        `<div class="p-3">El plato <strong>${dish.name}</strong>  ha sido creada correctamente.</div>`
+      );
     } else {
       body.insertAdjacentHTML(
-        'afterbegin',
-        `<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> El plato <strong>${dish.name}</strong> no ha podido crearse correctamente.</div>`,
+        "afterbegin",
+        `<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> El plato <strong>${dish.name}</strong> no ha podido crearse correctamente.</div>`
       );
     }
     messageModal.show();
@@ -695,106 +775,648 @@ class RestaurantView {
       }
       document.fNewDish.npName.focus();
     };
-    messageModalContainer.addEventListener('hidden.bs.modal', listener, { once: true });
+    messageModalContainer.addEventListener("hidden.bs.modal", listener, {
+      once: true,
+    });
   }
 
   showRemoveDishModal(done, dish, error) {
-    const productList = document.getElementById('dish-list');
-    const messageModalContainer = document.getElementById('messageModal');
-    const messageModal = new bootstrap.Modal('#messageModal');
+    const productList = document.getElementById("dish-list");
+    const messageModalContainer = document.getElementById("messageModal");
+    const messageModal = new bootstrap.Modal("#messageModal");
 
-    const title = document.getElementById('messageModalTitle');
-    title.innerHTML = 'Plato eliminado';
-    const body = messageModalContainer.querySelector('.modal-body');
+    const title = document.getElementById("messageModalTitle");
+    title.innerHTML = "Plato eliminado";
+    const body = messageModalContainer.querySelector(".modal-body");
     body.replaceChildren();
     if (done) {
-      body.insertAdjacentHTML('afterbegin', `<div class="p-3">El plato <strong>${dish.name}</strong> ha sido eliminado correctamente.</div>`);
-    } else if (!done && !dish){
       body.insertAdjacentHTML(
-        'afterbegin',
-        `<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> No has seleccionado ningún plato</div>`,
+        "afterbegin",
+        `<div class="p-3">El plato <strong>${dish.name}</strong> ha sido eliminado correctamente.</div>`
       );
-    }
-    else {
+    } else if (!done && !dish) {
       body.insertAdjacentHTML(
-        'afterbegin',
-        '<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> El plato no existe en el manager.</div>',
+        "afterbegin",
+        `<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> No has seleccionado ningún plato</div>`
+      );
+    } else {
+      body.insertAdjacentHTML(
+        "afterbegin",
+        '<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> El plato no existe en el manager.</div>'
       );
     }
     messageModal.show();
     const listener = (event) => {
       if (done) {
-        const button = productList.querySelector(`a.btn[data-name="${dish.name}"]`);
-        button.parentElement.parentElement.parentElement.remove();
+        const select = document.getElementById("rpDishes");
+        const options = select.querySelector(`option[data-dish = "${dish.name}"]`)
+        options.remove();
+        document.fRemoveDish.reset();
       }
     };
-    messageModalContainer.addEventListener('hidden.bs.modal', listener, { once: true });
+    messageModalContainer.addEventListener("hidden.bs.modal", listener, {
+      once: true,
+    });
+  }
+
+  showNewCategoryForm() {
+    this.main.replaceChildren();
+    if (this.categories.children.length > 1)
+      this.categories.children[1].remove();
+
+    const container = document.createElement("div");
+    container.classList.add("container");
+    container.classList.add("my-3");
+    container.id = "new-category";
+
+    container.insertAdjacentHTML(
+      "afterbegin",
+      '<h1 class="display-5">Nueva categoría</h1>'
+    );
+    container.insertAdjacentHTML(
+      "beforeend",
+      `<form name="fNewCategory" role="form" class="row g-3" novalidate>
+			<div class="col-md-6 mb-3">
+				<label class="form-label" for="ncName">Título *</label>
+				<div class="input-group">
+					<span class="input-group-text"><i class="bi bi-type"></i></span>
+					<input type="text" class="form-control" id="ncName" name="ncTitle"
+						placeholder="Título de categoría" value="" required>
+					<div class="invalid-feedback">El título es obligatorio.</div>
+					<div class="valid-feedback">Correcto.</div>
+				</div>
+			</div>
+			<div class="col-md-6 mb-3">
+				<label class="form-label" for="ncUrl">URL de la imagen *</label>
+				<div class="input-group">
+					<span class="input-group-text"><i class="bi bi-file-image"></i></span>
+					<input type="url" class="form-control" id="ncUrl" name="ncUrl" placeholder="URL de la imagen"
+						value="" required>
+					<div class="invalid-feedback">La URL no es válida.</div>
+					<div class="valid-feedback">Correcto.</div>
+				</div>
+			</div>
+			<div class="col-md-12 mb-3">
+				<label class="form-label" for="ncDescription">Descripción</label>
+				<div class="input-group">
+					<span class="input-group-text"><i class="bi bi-body-text"></i></span>
+					<input type="text" class="form-control" id="ncDescription" name="ncDescription" value="">
+					<div class="invalid-feedback"></div>
+					<div class="valid-feedback">Correcto.</div>
+				</div>
+			</div>
+			<div class="mb-12">
+				<button class="btn btn-primary" type="submit">Enviar</button>
+				<button class="btn btn-primary" type="reset">Cancelar</button>
+			</div>
+		</form>`
+    );
+    this.main.append(container);
+  }
+
+  showModifyCategoryForm(dishes, categories) {
+    this.main.replaceChildren();
+    if (this.categories.children.length > 1)
+      this.categories.children[1].remove();
+
+    const container = document.createElement("div");
+    container.classList.add("container");
+    container.classList.add("my-3");
+    container.id = "assign-dish";
+
+    container.insertAdjacentHTML(
+      "afterbegin",
+      '<h1 class="display-5">Asignación y designación de platos a categorías</h1>'
+    );
+
+    const form = document.createElement("form");
+    form.name = "fAssignDish";
+    form.setAttribute("role", "form");
+    form.setAttribute("novalidate", "");
+    form.classList.add("row");
+    form.classList.add("g-3");
+
+    form.insertAdjacentHTML(
+      "beforeend",
+      `<div class="col-md-6 mb-3">
+				<label class="form-label" for="rpDishes">Asigna un plato a una categoría</label>
+				<div class="input-group">
+					<label class="input-group-text" for="rpDishes"><i class="bi bi-card-checklist"></i></label>
+					<select class="form-select" name="rpDishes" id="rpDishes">
+						<option disabled selected value=''>Selecciona un plato</option>
+					</select>
+
+          <label class="input-group-text" for="rpCategories"><i class="bi bi-card-checklist"></i></label>
+					<select class="form-select" name="rpCategories" id="rpCategories">
+						<option disabled selected value=''>Selecciona una categoría para asignar o desasignar</option>
+					</select>
+				</div>
+			</div>
+      <div class="mb-12">
+      <button class="btn btn-primary"  id="Asignar" type="submit">Asignar</button>
+      <button class="btn btn-primary" " id="desasignar" type="submit">Desasignar</button>
+  </div>
+  
+  <div id="categoryList">
+      <p>Categorías donde se encuentra el plato</p>
+  </div>`
+    );
+
+    const rpDishes = form.querySelector("#rpDishes");
+    for (const dish of dishes) {
+      rpDishes.insertAdjacentHTML(
+        "beforeend",
+        `<option value="${dish.name}">${dish.name}</option>`
+      );
+    }
+
+    const rpCategories = form.querySelector("#rpCategories");
+    for (const category of categories) {
+      rpCategories.insertAdjacentHTML(
+        "beforeend",
+        `<option value="${category.name}">${category.name}</option>`
+      );
+    }
+
+    this.main.append(container);
+    container.append(form);
+  }
+
+  //Método para mostrar las categorías a las que pertenece un plato.
+  showCategoryWithDish(dish, categories) {
+    const categoriesList = document.getElementById("categoryList");
+    categoriesList.replaceChildren();
+    categoriesList.insertAdjacentHTML(
+      "afterbegin",
+      `<p>Categorías donde se encuentra el plato <strong>${dish}</strong></p>`
+    );
+
+    for (const category of categories) {
+      categoriesList.insertAdjacentHTML(
+        "beforeend",
+        `<div class="col-md-4"><p><strong>${category.name}</strong></p></div>`
+      );
+    }
+  }
+
+  showAssignDishCategoryModal(done, dish, error, categories) {
+    const categoryList = document.getElementById("categoryList");
+    const messageModalContainer = document.getElementById("messageModal");
+    const messageModal = new bootstrap.Modal("#messageModal");
+
+    if (!dish) {
+      const title = document.getElementById("messageModalTitle");
+      title.innerHTML = `Asignación de plato`;
+      const body = messageModalContainer.querySelector(".modal-body");
+      body.replaceChildren();
+      body.insertAdjacentHTML(
+        "afterbegin",
+        `<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> No has seleccionado ningún plato</div>`
+      );
+    } else {
+      const title = document.getElementById("messageModalTitle");
+      title.innerHTML = `Asignación del Plato: ${dish.name}`;
+      const body = messageModalContainer.querySelector(".modal-body");
+      body.replaceChildren();
+      if (done) {
+        body.insertAdjacentHTML(
+          "afterbegin",
+          `<div class="p-3">El plato <strong>${dish.name}</strong> ha sido asignado correctamente.</div>`
+        );
+      } else if (!done && !dish) {
+        body.insertAdjacentHTML(
+          "afterbegin",
+          `<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> No has seleccionado ningún plato</div>`
+        );
+      } else if (error instanceof DishExistInListException) {
+        body.insertAdjacentHTML(
+          "afterbegin",
+          `<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> El plato <strong>${dish.name}</strong> ya existe en la categoría.</div>`
+        );
+      } else {
+        body.insertAdjacentHTML(
+          "afterbegin",
+          '<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> El plato no existe.</div>'
+        );
+      }
+    }
+    messageModal.show();
+    const listener = (event) => {
+      if (done) {
+       this.showCategoryWithDish(dish.name,categories)
+      }
+    };
+    messageModalContainer.addEventListener("hidden.bs.modal", listener, {
+      once: true,
+    });
+  }
+
+  showDesassignDishCategoryModal(done, dish, error,categories) {
+    const categoryList = document.getElementById("categoryList");
+    const messageModalContainer = document.getElementById("messageModal");
+    const messageModal = new bootstrap.Modal("#messageModal");
+
+    if (!dish) {
+      const title = document.getElementById("messageModalTitle");
+      title.innerHTML = `Asignación de plato`;
+      const body = messageModalContainer.querySelector(".modal-body");
+      body.replaceChildren();
+      body.insertAdjacentHTML(
+        "afterbegin",
+        `<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> No has seleccionado ningún plato</div>`
+      );
+    } else {
+      const title = document.getElementById("messageModalTitle");
+      title.innerHTML = `Desasignación del plato: ${dish.name}`;
+      const body = messageModalContainer.querySelector(".modal-body");
+      body.replaceChildren();
+      if (done) {
+        body.insertAdjacentHTML(
+          "afterbegin",
+          `<div class="p-3">El plato <strong>${dish.name}</strong> ha sido desasignado correctamente.</div>`
+        );
+      } else if (!done && !dish) {
+        body.insertAdjacentHTML(
+          "afterbegin",
+          `<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> No has seleccionado ningún plato</div>`
+        );
+      } else if (error instanceof DishExistInListException) {
+        body.insertAdjacentHTML(
+          "afterbegin",
+          `<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> El plato <strong>${dish.name}</strong> no existe en el menú.</div>`
+        );
+      } else {
+        body.insertAdjacentHTML(
+          "afterbegin",
+          '<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> El plato no existe en el manager.</div>'
+        );
+      }
+    }
+    messageModal.show();
+    const listener = (event) => {
+      this.showCategoryWithDish(dish.name, categories);
+    };
+    messageModalContainer.addEventListener("hidden.bs.modal", listener, {
+      once: true,
+    });
+  }
+
+  showNewRestaurantModal(done, restaurant, error) {
+    const messageModalContainer = document.getElementById("messageModal");
+    const messageModal = new bootstrap.Modal("#messageModal");
+
+    const title = document.getElementById("messageModalTitle");
+    title.innerHTML = "Creación de restaurante";
+    const body = messageModalContainer.querySelector(".modal-body");
+    body.replaceChildren();
+    if (done) {
+      body.insertAdjacentHTML(
+        "afterbegin",
+        `<div class="p-3">El restaurante <strong>${restaurant.name}</strong>  ha sido creado correctamente.</div>`
+      );
+    } else {
+      body.insertAdjacentHTML(
+        "afterbegin",
+        `<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> El restaurante <strong>${restaurant.name}</strong> no ha podido crearse correctamente.</div>`
+      );
+    }
+    messageModal.show();
+    const listener = (event) => {
+      if (done) {
+        document.fNewRestaurant.reset();
+      }
+      document.fNewRestaurant.npName.focus();
+    };
+    messageModalContainer.addEventListener("hidden.bs.modal", listener, {
+      once: true,
+    });
+  }
+
+  //Método que muestra el formulario para eliminar una categoría.
+  showRemoveCategoryForm(categories) {
+    this.main.replaceChildren();
+    if (this.categories.children.length > 1)
+      this.categories.children[1].remove();
+    const container = document.createElement("div");
+    container.classList.add("container");
+    container.classList.add("my-3");
+    container.id = "removeCategory";
+    container.insertAdjacentHTML(
+      "afterbegin",
+      '<h1 class="display-5">Eliminar una categoría</h1>'
+    );
+    const row = document.createElement("div");
+    row.classList.add("rew");
+    for (const category of categories) {
+      row.insertAdjacentHTML(
+        "beforeend",
+        `<div id="category_cards" class="row">
+        <div class="card" style="width: 18rem;">
+        <img src="${category.url}" class="card-img-top" alt="${category.nam}">
+        <div class="card-body">
+          <h5 class="card-title">${category.name}</h5>
+          <p class="card-text">${category.description}</p>
+          <a href="#" class="btn btn-primary" data-category="${category.name}">Eliminar</a>
+        </div>
+      </div>
+      </div>
+      `
+      );
+    }
+    container.append(row);
+    this.main.append(container);
+  }
+
+  shownewRestaurantForm() {
+    this.main.replaceChildren();
+    if (this.categories.children.length > 1)
+      this.categories.children[1].remove();
+    const container = document.createElement("div");
+    container.classList.add("container");
+    container.classList.add("my-3");
+    container.id = "new-restaurant";
+
+    container.insertAdjacentHTML(
+      "afterbegin",
+      `<h1 class="display-5">Nuevo Restaurante</h1>`
+    );
+
+    container.insertAdjacentHTML(
+      "beforeend",
+      `<form name="fNewRestaurant" role="form" class="row g-3" novalidate>
+          <div class="col-md-6 mb-3">
+              <label class="form-label" for="npName">Nombre *</label>
+              <div class="input-group">
+                  <span class="input-group-text"><i class="fa-solid fa-utensils"></i></span>
+                  <input type="text" class="form-control" id="npName" name="npName" placeholder="Nombre del restaurante" value="" required>
+                  <div class="invalid-feedback">El nombre es obligatorio.</div>
+                  <div class="valid-feedback">Correcto.</div>
+              </div>
+          </div>
+          
+          </div>
+          <div class="col-md-6 mb-3">
+              <label class="form-label" for="npUrl">URL de la imagen *</label>
+              <div class="input-group">
+                  <span class="input-group-text"><i class="fa-solid fa-image"></i></span>
+                  <input type="url" class="form-control" id="npUrl" name="npUrl" placeholder="URL de la imagen" value="" required>
+                  <div class="invalid-feedback">La URL no es válida.</div>
+                  <div class="valid-feedback">Correcto.</div>
+              </div>
+          </div>
+          <div class="col-md-12 mb-3">
+              <label class="form-label" for="npDescription">Descripción</label>
+              <div class="input-group">
+                  <span class="input-group-text"><i class="fa-solid fa-t"></i></span>
+                  <input type="text" class="form-control" id="npDescription" name="nDescription" value="">
+                  <div class="invalid-feedback"></div>
+                  <div class="valid-feedback">Correcto.</div>
+              </div>
+          </div>
+
+          <div class="col-md-6 mb-3">
+          <label class="form-label" for="npLatitude">Latitud</label>
+          <div class="input-group">
+              <span class="input-group-text"><i class="fa-solid fa-location-dot"></i></span>
+              <input type="text" class="form-control" id="npLatitude" name="npLatitude">
+              <div class="invalid-feedback">Formato de latitud incorrecto.</div>
+              <div class="valid-feedback">Correcto.</div>
+          </div>
+      </div>
+
+      <div class="col-md-6 mb-3">
+          <label class="form-label" for="npLongitude">Longitud</label>
+          <div class="input-group">
+              <span class="input-group-text"><i class="fa-solid fa-location-dot"></i></span>
+              <input type="text" class="form-control" id="npLongitude" name="npLongitude">
+              <div class="invalid-feedback">Formato de longitud incorrecto.</div>
+              <div class="valid-feedback">Correcto.</div>
+          </div>
+      </div>
+  <div class="mb-12">
+              <button class="btn btn-primary" type="submit">Enviar</button>
+              <button class="btn btn-primary" type="reset">Cancelar</button>
+          </div>
+         
+      </form>`
+    );
+
+    this.main.append(container);
   }
 
   showAssignDishModal(done, dish, error) {
-    const productList = document.getElementById('dish-list');
-    const messageModalContainer = document.getElementById('messageModal');
-    const messageModal = new bootstrap.Modal('#messageModal');
+    const productList = document.getElementById("menusList");
+    const messageModalContainer = document.getElementById("messageModal");
+    const messageModal = new bootstrap.Modal("#messageModal");
 
-    const title = document.getElementById('messageModalTitle');
-    title.innerHTML = `Plato: ${dish.name} asignado`;
-    const body = messageModalContainer.querySelector('.modal-body');
-    body.replaceChildren();
-    if (done) {
-      body.insertAdjacentHTML('afterbegin', `<div class="p-3">El plato <strong>${dish.name}</strong> ha sido asignado correctamente.</div>`);
-    } else if (!done && !dish){
+    if (!dish) {
+      const title = document.getElementById("messageModalTitle");
+      title.innerHTML = `Asignación de plato`;
+      const body = messageModalContainer.querySelector(".modal-body");
+      body.replaceChildren();
       body.insertAdjacentHTML(
-        'afterbegin',
-        `<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> No has seleccionado ningún plato</div>`,
+        "afterbegin",
+        `<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> No has seleccionado ningún plato</div>`
       );
-    }
-    else {
-      body.insertAdjacentHTML(
-        'afterbegin',
-        '<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> El plato no existe.</div>',
-      );
+    } else {
+      const title = document.getElementById("messageModalTitle");
+      title.innerHTML = `Asignación del Plato: ${dish.name}`;
+      const body = messageModalContainer.querySelector(".modal-body");
+      body.replaceChildren();
+      if (done) {
+        body.insertAdjacentHTML(
+          "afterbegin",
+          `<div class="p-3">El plato <strong>${dish.name}</strong> ha sido asignado correctamente.</div>`
+        );
+      } else if (!done && !dish) {
+        body.insertAdjacentHTML(
+          "afterbegin",
+          `<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> No has seleccionado ningún plato</div>`
+        );
+      } else if (error instanceof DishExistInListException) {
+        body.insertAdjacentHTML(
+          "afterbegin",
+          `<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> El plato <strong>${dish.name}</strong> ya existe en el menú.</div>`
+        );
+      } else {
+        body.insertAdjacentHTML(
+          "afterbegin",
+          '<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> El plato no existe.</div>'
+        );
+      }
     }
     messageModal.show();
     const listener = (event) => {
       if (done) {
-        const button = productList.querySelector(`a.btn[data-name="${dish.name}"]`);
+        const button = productList.querySelector(
+          `a.btn[data-name="${dish.name}"]`
+        );
         button.parentElement.parentElement.parentElement.remove();
       }
     };
-    messageModalContainer.addEventListener('hidden.bs.modal', listener, { once: true });
+    messageModalContainer.addEventListener("hidden.bs.modal", listener, {
+      once: true,
+    });
   }
 
   showDesassignDishModal(done, dish, error) {
-    const productList = document.getElementById('dish-list');
-    const messageModalContainer = document.getElementById('messageModal');
-    const messageModal = new bootstrap.Modal('#messageModal');
+    const productList = document.getElementById("menusList");
+    const messageModalContainer = document.getElementById("messageModal");
+    const messageModal = new bootstrap.Modal("#messageModal");
 
-    const title = document.getElementById('messageModalTitle');
-    title.innerHTML = `Plato: ${dish.name} desasignado`;
-    const body = messageModalContainer.querySelector('.modal-body');
+    if (!dish) {
+      const title = document.getElementById("messageModalTitle");
+      title.innerHTML = `Asignación de plato`;
+      const body = messageModalContainer.querySelector(".modal-body");
+      body.replaceChildren();
+      body.insertAdjacentHTML(
+        "afterbegin",
+        `<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> No has seleccionado ningún plato</div>`
+      );
+    } else {
+      const title = document.getElementById("messageModalTitle");
+      title.innerHTML = `Desasignación del plato: ${dish.name}`;
+      const body = messageModalContainer.querySelector(".modal-body");
+      body.replaceChildren();
+      if (done) {
+        body.insertAdjacentHTML(
+          "afterbegin",
+          `<div class="p-3">El plato <strong>${dish.name}</strong> ha sido desasignado correctamente.</div>`
+        );
+      } else if (!done && !dish) {
+        body.insertAdjacentHTML(
+          "afterbegin",
+          `<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> No has seleccionado ningún plato</div>`
+        );
+      } else if (error instanceof DishExistInListException) {
+        body.insertAdjacentHTML(
+          "afterbegin",
+          `<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> El plato <strong>${dish.name}</strong> no existe en el menú.</div>`
+        );
+      } else {
+        body.insertAdjacentHTML(
+          "afterbegin",
+          '<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> El plato no existe en el manager.</div>'
+        );
+      }
+    }
+    messageModal.show();
+    const listener = (event) => {
+      if (done) {
+        const button = productList.querySelector(
+          `a.btn[data-name="${dish.name}"]`
+        );
+        button.parentElement.parentElement.parentElement.remove();
+      }
+    };
+    messageModalContainer.addEventListener("hidden.bs.modal", listener, {
+      once: true,
+    });
+  }
+
+  showNewCategoryModal(done, cat, error) {
+    const messageModalContainer = document.getElementById("messageModal");
+    const messageModal = new bootstrap.Modal("#messageModal");
+
+    const title = document.getElementById("messageModalTitle");
+    title.innerHTML = "Nueva Categoría";
+    const body = messageModalContainer.querySelector(".modal-body");
     body.replaceChildren();
     if (done) {
-      body.insertAdjacentHTML('afterbegin', `<div class="p-3">El plato <strong>${dish.name}</strong> ha sido desasignado correctamente.</div>`);
-    } else if (!done && !dish){
       body.insertAdjacentHTML(
-        'afterbegin',
-        `<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> No has seleccionado ningún plato</div>`,
+        "afterbegin",
+        `<div class="p-3">La categoría <strong>${cat.name}</strong> ha sido creada correctamente.</div>`
       );
-    }
-    else {
+    } else {
       body.insertAdjacentHTML(
-        'afterbegin',
-        '<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> El plato no existe en el manager.</div>',
+        "afterbegin",
+        `<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> La categoría <strong>${cat.name}</strong> ya está creada.</div>`
       );
     }
     messageModal.show();
     const listener = (event) => {
       if (done) {
-        const button = productList.querySelector(`a.btn[data-name="${dish.name}"]`);
-        button.parentElement.parentElement.parentElement.remove();
+        document.fNewCategory.reset();
+      }
+      document.fNewCategory.ncTitle.focus();
+    };
+    messageModalContainer.addEventListener("hidden.bs.modal", listener, {
+      once: true,
+    });
+  }
+
+  showRemoveCategoryModal(done, cat, error) {
+    const messageModalContainer = document.getElementById("messageModal");
+    const messageModal = new bootstrap.Modal("#messageModal");
+    const title = document.getElementById("messageModalTitle");
+    title.innerHTML = "Borrado de categoría";
+    const body = messageModalContainer.querySelector(".modal-body");
+    body.replaceChildren();
+    if (done) {
+      body.insertAdjacentHTML(
+        "afterbegin",
+        `<div class="p-3">La categoría <strong>${cat.name}</strong> ha sido eliminada correctamente.</div>`
+      );
+    } else {
+      body.insertAdjacentHTML(
+        "afterbegin",
+        `<div class="error text-danger p-3"><i class="bi bi-exclamation-triangle"></i> La categoría <strong>${cat.name}</strong> no se ha podido borrar.</div>`
+      );
+    }
+    messageModal.show();
+    const listener = (event) => {
+      if (done) {
+        // Selecciona todos los enlaces dentro del contenedor #removeCategory con el atributo data-category correspondiente a la categoría
+        const buttons = document.querySelectorAll(
+          `#removeCategory a[data-category="${cat.name}"]`
+        );
+
+        // Itera sobre todos los enlaces encontrados y elimina los contenedores de tarjetas correspondientes
+        buttons.forEach((button) => {
+          const cardContainer = button.closest(".row");
+          if (cardContainer) {
+            cardContainer.remove();
+          }
+        });
       }
     };
-    messageModalContainer.addEventListener('hidden.bs.modal', listener, { once: true });
+    messageModalContainer.addEventListener("hidden.bs.modal", listener, {
+      once: true,
+    });
+  }
+
+  showUpdateCategoryMenu(cat) {
+    const navCats = document.getElementById("navCats");
+    const container = navCats.nextElementSibling;
+    container.replaceChildren();
+    for (const category of cat) {
+      container.insertAdjacentHTML(
+        "beforeend",
+        `<li><a data-category="${category.name}" class="dropdown-item" href="#product-list">${category.name}</a></li>`
+      );
+    }
+  }
+
+  showUpdateRestaurantMenu(restaurants) {
+    const menuRestaurant = document.getElementById("menus-restaurant");
+    menuRestaurant.replaceChildren();
+    let contador = 0;
+    for (const restaurant of restaurants) {
+      menuRestaurant.insertAdjacentHTML(
+        "beforeend",
+        `<li><a class="dropdown-item" href="#" data-restaurant="${restaurant.name}">${restaurant.name}</a></li>`
+      );
+
+      const restaurants_array = Array.from(restaurants);
+
+      if (contador < restaurants_array.length - 1) {
+        menuRestaurant.insertAdjacentHTML(
+          "beforeend",
+          `<hr class="dropdown-divider">`
+        );
+        contador++;
+      }
+    }
   }
   //Métodos bind para enlazar el manejador de eventos de la vista con el controlador.
 
@@ -903,71 +1525,171 @@ class RestaurantView {
   }
 
   bindRemoveProduct(handler) {
-    const button = document.getElementById('eliminar');
-    const select = document.getElementById('rpDishes');
-  
-    button.addEventListener('click', function(event) {
+    const button = document.getElementById("eliminar");
+    const select = document.getElementById("rpDishes");
+
+    button.addEventListener("click", function (event) {
       // Obtener el valor seleccionado del select
       const selectedDish = select.value;
-      
+
       // Llamar al manejador con el valor seleccionado del plato
       handler(selectedDish);
-      
+
       // Prevenir el comportamiento predeterminado del botón (enviar formulario)
       event.preventDefault();
     });
   }
 
-  bindAssignDish(handlerAssign,handlerDeassign) {
-    const buttonAsignar = document.getElementById('asignar');
-    const buttonDesasignar = document.getElementById('desasignar');
-    const selectDishes = document.getElementById('rpDishes');
-    const selectMenus = document.getElementById('rpMenus');
+  bindDesAssignDishInMenu(handler) {
+    const buttonDesasignar = document.getElementById("desasignar");
+    const selectDishes = document.getElementById("rpDishes");
+    const selectMenus = document.getElementById("rpMenus");
 
-    buttonAsignar.addEventListener('click', function(event) {
+    buttonDesasignar.addEventListener("click", function (event) {
       // Obtener el valor seleccionado del select
       const selectedDish = selectDishes.value;
       const selectedMenu = selectMenus.value;
 
       // Llamar al manejador con el valor seleccionado del plato
-      handlerAssign(selectedDish, selectedMenu);
+      handler(selectedDish, selectedMenu);
 
       // Prevenir el comportamiento predeterminado del botón (enviar formulario)
       event.preventDefault();
     });
-
-    buttonDesasignar.addEventListener('click', function(event) {
-      // Obtener el valor seleccionado del select
-      const selectedDish = selectDishes.value;
-      const selectedMenu = selectMenus.value;
-
-      // Llamar al manejador con el valor seleccionado del plato
-      handlerDeassign(selectedDish, selectedMenu);
-
-      // Prevenir el comportamiento predeterminado del botón (enviar formulario)
-      event.preventDefault();
-    });
-    
   }
-  
 
-  bindAdminMenu(hNewDish,hRemoveDish,hAssignsDish){
+  bindAssignDishInMenu(handler) {
+    const button = document.getElementById("Asignar");
+    const selectDishes = document.getElementById("rpDishes");
+    const selectMenus = document.getElementById("rpMenus");
+
+    button.addEventListener("click", function (event) {
+      // Obtener el valor seleccionado del select
+      const selectedDish = selectDishes.value;
+      const selectedMenu = selectMenus.value;
+
+      // Llamar al manejador con el valor seleccionado del plato
+      handler(selectedDish, selectedMenu);
+
+      // Prevenir el comportamiento predeterminado del botón (enviar formulario)
+      event.preventDefault();
+    });
+  }
+
+  bindAssignDishInCategory(handler) {
+    const button = document.getElementById("Asignar");
+    const selectDishes = document.getElementById("rpDishes");
+    const selectCategories = document.getElementById("rpCategories");
+
+    button.addEventListener("click", function (event) {
+      // Obtener el valor seleccionado del select
+      const selectedDish = selectDishes.value;
+      const selectedCategory = selectCategories.value;
+
+      // Llamar al manejador con el valor seleccionado del plato
+      handler(selectedDish, selectedCategory);
+
+      // Prevenir el comportamiento predeterminado del botón (enviar formulario)
+      event.preventDefault();
+    });
+  }
+
+  bindDesassignDishInCategory(handler) {
+    const button = document.getElementById("desasignar");
+    const selectDishes = document.getElementById("rpDishes");
+    const selectCategories = document.getElementById("rpCategories");
+
+    button.addEventListener("click", function (event) {
+      // Obtener el valor seleccionado del select
+      const selectedDish = selectDishes.value;
+      const selectedCategory = selectCategories.value;
+
+      // Llamar al manejador con el valor seleccionado del plato
+      handler(selectedDish, selectedCategory);
+
+      // Prevenir el comportamiento predeterminado del botón (enviar formulario)
+      event.preventDefault();
+    })
+  }
+
+  bindShowDishInMenus(handle) {
+    document.getElementById("rpDishes").addEventListener("change", function () {
+      const selectDishes = document.getElementById("rpDishes");
+      console.log(selectDishes.value);
+      // Llamar al controlador para manejar la selección del plato
+      handle(selectDishes.value);
+    });
+  }
+
+  bindShowDishInCategories(handle) {
+    document.getElementById("rpDishes").addEventListener("change", function () {
+      const selectDishes = document.getElementById("rpDishes");
+      // Llamar al controlador para manejar la selección del plato
+      handle(selectDishes.value);
+    });
+  }
+
+  bindNewCategoryForm(handler) {
+    newCategoryValidation(handler);
+  }
+
+  bindRemoveCategoryForm(delHandler) {
+    const removeContainer = document.getElementById("removeCategory");
+    const buttons = removeContainer.getElementsByTagName("a");
+    for (const button of buttons) {
+      button.addEventListener("click", function (event) {
+        delHandler(this.dataset.category);
+      });
+    }
+  }
+
+  bindNewRestaurantForm(handler) {
+    newRestaurantValidation(handler);
+  }
+
+  bindAdminMenu(
+    hNewDish,
+    hRemoveDish,
+    hAssignsDish,
+    hnewCategory,
+    hRemoveCategory,
+    hNewRestaurant,
+    hModifyCategoryDish
+  ) {
     const newDishLink = document.getElementById("newDish");
     newDishLink.addEventListener("click", (event) => {
       hNewDish();
-    })
+    });
 
     const removeDishLink = document.getElementById("deleteDish");
     removeDishLink.addEventListener("click", (event) => {
       hRemoveDish();
-    })
+    });
 
     const assignDishLink = document.getElementById("assignDish");
     assignDishLink.addEventListener("click", (event) => {
       hAssignsDish();
-    })
+    });
 
-    };
+    const newCategoryLink = document.getElementById("newCategory");
+    newCategoryLink.addEventListener("click", (event) => {
+      hnewCategory();
+    });
+
+    const removeCategoryLink = document.getElementById("deleteCategory");
+    removeCategoryLink.addEventListener("click", (event) => {
+      hRemoveCategory();
+    });
+
+    const newRestaurantLink = document.getElementById("newRestaurant");
+    newRestaurantLink.addEventListener("click", (event) => {
+      hNewRestaurant();
+    });
+    const modifyCategoryDishLink = document.getElementById("modifyCategories");
+    modifyCategoryDishLink.addEventListener("click", (event) => {
+      hModifyCategoryDish();
+    })
+  }
 }
 
 //Exportamos la clase RestaurantView.

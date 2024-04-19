@@ -294,7 +294,15 @@ class RestaurantController {
     this[VIEW].bindDishesCategory(this.handleDishesCategoryList);
     //Llamada al método bindDishInformation que recibe un manejador de eventos para enlazar los eventos con el manejador de eventos.
     this[VIEW].bindDishInformation(this.handleDishesInformation);
-    this[VIEW].bindAdminMenu(this.handleNewDishForm, this.handleRemoveDishForm, this.handleAssDssDishForm);
+    this[VIEW].bindAdminMenu(
+      this.handleNewDishForm,
+      this.handleRemoveDishForm,
+      this.handleAssDssDishForm,
+      this.handleNewCategoryForm,
+      this.handleRemoveCategoryForm,
+      this.handleNewRestaurantForm,
+      this.handleModifyCategoryofDish
+    );
   };
 
   /**Método que realiza práctica la misma funcón que la carga inicial, sin embargo, este se ejecuta al realizar
@@ -352,6 +360,7 @@ class RestaurantController {
 
   //Manejador de eventos para mostrar los platos de una determinada categoría.
   handleDishesCategoryList = (title) => {
+    let error;
     try {
       //Llamaos al método getCategoryByName para obtener la categoría clickeada el evento click.
       const category = this[MODEL].getCategoryByName(title);
@@ -374,12 +383,12 @@ class RestaurantController {
       this[BREAD].addCrumb("Inicio", "Categorías", title);
       //Enlazamos los eventos con el método bindBreadcrumbs para que al realizar click en una miga de pan, muestre su contenido.
       this[VIEW].bindBreadcrumbs(this.handleBreads);
-    } catch (error) {
-      console.error(
-        "Se produjo un error al manejar la lista de platos por categoría:",
-        error
-      );
+    } catch (exception) {
+      error = exception;
+      this[VIEW].showNotDishes(error);
     }
+
+   
   };
 
   //Manejador de eventos para mostrar los platos en los que se encuentra el alérgeno indicado. Sigue el mismo proceso que el anterior.
@@ -577,18 +586,28 @@ class RestaurantController {
 
   //Manejador de eventos que e encarga de mostrar el formulario de crear plato.
   handleNewDishForm = () => {
-    this[VIEW].showDishCreationForm(this[MODEL].categories, this[MODEL].allergics);
+    this[VIEW].showDishCreationForm(
+      this[MODEL].categories,
+      this[MODEL].allergics
+    );
     this[VIEW].bindNewDishForm(this.handleNewDish);
-  }
+  };
 
   //Manejador de eventos que se encarga de la gestión para crear un nuevo plato.
-  handleNewDish = (name,description,url,ingredients,categories,allergens)=>{
+  handleNewDish = (
+    name,
+    description,
+    url,
+    ingredients,
+    categories,
+    allergens
+  ) => {
     let done;
     let error;
     let dish;
 
-    try{
-      dish = this[MODEL].createDish(name,description,ingredients,url);
+    try {
+      dish = this[MODEL].createDish(name, description, ingredients, url);
       dish.image = url;
       dish.ingredients = ingredients;
       dish.description = description;
@@ -602,74 +621,240 @@ class RestaurantController {
       allergens.forEach((name) => {
         const allergen = this[MODEL].getAllergenByName(name);
         this[MODEL].assignAllergentoDish(allergen, dish);
-      })
+      });
       done = true;
-    
+    } catch (exception) {
+      done = false;
+      error = exception;
+    }
 
-  } catch(exception){
-    done = false;
-    error = exception;
-  }
+    this[VIEW].showNewDishModal(done, dish, error);
+  };
 
-  this[VIEW].showNewProductModal(done, dish, error);
-};
+  handleRemoveDishForm = () => {
+    this[VIEW].showRemoveDishForm(this[MODEL].dishes);
+    this[VIEW].bindRemoveProduct(this.handleRemoveDish);
+  };
 
-handleRemoveDishForm = () => {
-  this[VIEW].showRemoveDishForm(this[MODEL].dishes);
-  this[VIEW].bindRemoveProduct(this.handleRemoveDish);
-};
+  handleAssDssDishForm = () => {
+    this[VIEW].showAssignDishesForm(this[MODEL].dishes, this[MODEL].menus);
+    this[VIEW].bindShowDishInMenus(this.handleShowDishInMenus);
+    this[VIEW].bindAssignDishInMenu(this.handleAssignDishtoMenu);
+    this[VIEW].bindDesAssignDishInMenu(this.handleDesassignDishToMenu);
+  };
 
-handleAssDssDishForm = () =>{
-  this[VIEW].showAssignDishesForm(this[MODEL].dishes, this[MODEL].menus);
-  this[VIEW].bindAssignDish(this.handleAssignDishtoMenu, this.handleDesassignDishToMenu);
-}
+  handleModifyCategoryofDish = () => {
+    this[VIEW].showModifyCategoryForm(this[MODEL].dishes, this[MODEL].categories);
+    this[VIEW].bindShowDishInCategories(this.handleShowDishInCategories);
+    this[VIEW].bindAssignDishInCategory(this.handleAssignDishtoCategory);
+    this[VIEW].bindDesassignDishInCategory(this.handleDesassignDishToCategory);
+  };
 
-handleRemoveDish = (name) => {
-  let done; let error; let
-    dish;
+  handleRemoveDish = (name) => {
+    let done;
+    let error;
+    let dish;
     console.log(name);
-  try {
-    dish = this[MODEL].getDishByName(name);
-    console.log(dish);
-    this[MODEL].removeDish(dish);
-    done = true;
-  } catch (exception) {
-    done = false;
-    error = exception;
-  }
-  this[VIEW].showRemoveDishModal(done, dish, error);
-};
+    try {
+      dish = this[MODEL].getDishByName(name);
+      console.log(dish);
+      this[MODEL].removeDish(dish);
+      done = true;
+    } catch (exception) {
+      done = false;
+      error = exception;
+    }
+    this[VIEW].showRemoveDishModal(done, dish, error);
+  };
 
-handleAssignDishtoMenu = (name, menuName) => {
-  let done; let error; let
-    dish; let menu;
-  try {
-    dish = this[MODEL].getDishByName(name);
-    menu = this[MODEL].getMenuByName(menuName);
-    this[MODEL].assignDishToMenu(menu, dish);
-    done = true;
-  } catch (exception) {
-    done = false;
-    error = exception;
+  handleAssignDishtoMenu = (name, menuName) => {
+    let done;
+    let error;
+    let dish;
+    let menu;
+    try {
+      dish = this[MODEL].getDishByName(name);
+      console.log(dish);
+      menu = this[MODEL].getMenuByName(menuName);
+      this[MODEL].assignDishtoMenu(menu, dish);
+      done = true;
+    } catch (exception) {
+      done = false;
+      error = exception;
+    }
+    this[VIEW].showAssignDishModal(done, dish, error);
+  };
+
+  handleDesassignDishToMenu = (name, menuName) => {
+    let done;
+    let error;
+    let dish;
+    let menu;
+    try {
+      dish = this[MODEL].getDishByName(name);
+      menu = this[MODEL].getMenuByName(menuName);
+      this[MODEL].deassignDishToMenu(menu, dish);
+
+      done = true;
+    } catch (exception) {
+      done = false;
+      error = exception;
+    }
+
+    this[VIEW].showDesassignDishModal(done, dish, error);
+  };
+
+  handleShowDishInMenus = (dish) => {
+    let menus;
+    try {
+      menus = this[MODEL].dishInMenus(dish);
+      this[VIEW].showMenusWithDish(dish, menus);
+    } catch (exception) {
+      console.error(
+        "Se produjo un error al mostrar los menus donde se encuentra el plato",
+        exception
+      );
+    }
+  };
+
+  handleShowDishInCategories = (dish) => {
+    let categories;
+    try {
+      categories = this[MODEL].dishInCategory(dish);
+      this[VIEW].showCategoryWithDish(dish, categories);
+    } catch (exception) {
+      console.error(
+        "Se produjo un error al mostrar las categorías donde se encuentra el plato",
+        exception
+      );
+    }
   }
-  this[VIEW].showAssignDishToMenuModal(done, dish, error);
+  
+
+  handleNewCategoryForm = () => {
+    this[VIEW].showNewCategoryForm();
+    this[VIEW].bindNewCategoryForm(this.handleCreateCategory);
+  };
+
+  handleNewRestaurantForm = () => {
+    this[VIEW].shownewRestaurantForm();    
+    this[VIEW].bindNewRestaurantForm(this.handleNewRestaurant);
+  };
+
+  handleCreateCategory = (name, url, desc) => {
+    const cat = this[MODEL].createCategory(name, url);
+    cat.description = desc;
+    let done;
+    let error;
+    try {
+      this[MODEL].addCategory(cat);
+      done = true;
+    } catch (exception) {
+      done = false;
+      error = exception;
+    }
+    this[VIEW].showNewCategoryModal(done, cat, error);
+    this[VIEW].showUpdateCategoryMenu(this[MODEL].categories);
+    this[VIEW].bindDishesCategoryInMenu(this.handleDishesCategoryList);
+
+  };
+
+  //Manejador para eliminar una categoría.
+  handleRemoveCategoryForm = () => {
+    this[VIEW].showRemoveCategoryForm(this[MODEL].categories);
+    this[VIEW].bindRemoveCategoryForm(this.handleRemoveCategory);
+  };
+
+  handleRemoveCategory = (name) => {
+    let done;
+    let error;
+    let cat;
+    try {
+      done = true;
+      cat = this[MODEL].getCategoryByName(name);
+      this[MODEL].removeCategory(cat);
+    } catch (exception) {
+      done = false;
+      error = exception;
+    }
+    this[VIEW].showRemoveCategoryModal(done, cat, error);
+    this[VIEW].showUpdateCategoryMenu(this[MODEL].categories);
+    this[VIEW].bindDishesCategoryInMenu(this.handleDishesCategoryList);
+  };
+
+  handleAssignDishtoCategory = (name, categoryName) => {
+    let done;
+    let error;
+    let dish;
+    let category;
+    let categories;
+    try {
+      dish = this[MODEL].getDishByName(name);
+      console.log(dish);
+      category = this[MODEL].getCategoryByName(categoryName);
+      this[MODEL].assignCategoryToDish(category, dish);
+      categories = this[MODEL].dishInCategory(dish.name);
+      done = true;
+    } catch (exception) {
+      done = false;
+      error = exception;
+    }
+    this[VIEW].showAssignDishCategoryModal(done, dish, error, categories);
+  };
+
+  handleDesassignDishToCategory = (name, categoryName) => {
+    let done;
+    let error;
+    let dish;
+    let category;
+    let categories;
+    try {
+      dish = this[MODEL].getDishByName(name);
+      category = this[MODEL].getCategoryByName(categoryName);
+      this[MODEL].deassignCategoryToDish(category, dish);
+      categories = this[MODEL].dishInCategory(dish.name);
+
+      done = true;
+    } catch (exception) {
+      done = false;
+      error = exception;
+    }
+
+    this[VIEW].showDesassignDishCategoryModal(done, dish, error,categories);
+  };
+
+  handleNewRestaurant = (
+    name,
+    description,
+    url,
+    latitude,
+    longitude
+  ) => {
+    let done;
+    let error;
+    let restaurant;
+    const location = new Coordinate(latitude, longitude);
+
+    try {
+      restaurant = this[MODEL].createRestaurant(name, description,url);
+      restaurant.image = url;
+      restaurant.description = description;
+      restaurant.location = location;
+      this[MODEL].addRestaurant(restaurant);
+
+      done = true;
+    } catch (exception) {
+      done = false;
+      error = exception;
+    }
+
+    this[VIEW].showNewRestaurantModal(done, restaurant, error);
+    this[VIEW].showUpdateRestaurantMenu(this[MODEL].restaurants);
+    this[VIEW].bindRestaurants(this.handleRestaurantInformation);
 }
 
-handleDesassignDishToMenu = (name,menuName) =>{
-  let done; let error; let
-  dish; let menu;
-try {
-  dish = this[MODEL].getDishByName(name);
-  menu = this[MODEL].getMenuByName(menuName);
-  this[MODEL].deassignDishToMenu(menu, dish);
-  done = true;
-} catch (exception) {
-  done = false;
-  error = exception;
 }
-this[VIEW].showDesassignDishModal(done, dish, error);
-}
-}
+
 
 //Exportamos la clase RestaurantController.
 export default RestaurantController;
