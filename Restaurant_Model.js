@@ -835,23 +835,33 @@ class RestaurantsManager {
         return restaurant;
     }
 
+    //Función que devuelve un array con los menús que contienen un plato.
     dishInMenus(dish){
+        //Creamos un array vacío.
         let menusWithDish = [];
+        //Obtenemos el objeto del plato.
         let dishObject = this.getDishByName(dish);
+        //Si el objeto no existe, lanzamos una excepción.
         if(!dishObject){
             throw new DishNotExistInListException("El plato no existe en nuestra Base de datos.");
         }
+
+        //Recorremos todos los menús y comprobamos si el plato está en el menú.
         for (const currentMenu of this._menus) {
             console.log(currentMenu.menu instanceof Menu);
             let positionMenu = this.#getPosition(this._menus, currentMenu.menu, Menu);
             let positionDish = this.#getDishPositionsinMenu(dishObject, this._menus[positionMenu]);
+            //Si el plato está en el menú, lo añadimos al array.
             if (positionDish !== -1) {
                 menusWithDish.push(currentMenu.menu);
             }
         }
+
+        //Devolvemos el array.
         return menusWithDish;
     }
 
+    //Función que devuelve un array con las categorías que contienen un plato.
     dishInCategory(dish){
         let categoryWithDish = [];
         let dishObject = this.getDishByName(dish);

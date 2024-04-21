@@ -1,7 +1,7 @@
 /**Grado de Desarrollo de Aplicaciones Web.
- * DWEC - Unidad 5.
+ * DWEC - Unidad 6.
  * Alumno: Santiago Rosado Ruiz.
- * UT04 Práctica 5: Gestión de restaurantes - DOM y MVC.
+ * UT04 Práctica 6: Gestión de formularios.
  */
 "use strict";
 
@@ -609,6 +609,7 @@ class RestaurantView {
     this.main.append(container);
   }
 
+  //Método que muestra el formulario de eliminación de platos.
   showRemoveDishForm(dishes) {
     this.main.replaceChildren();
     if (this.categories.children.length > 1)
@@ -663,6 +664,7 @@ class RestaurantView {
     this.main.append(container);
   }
 
+  //Método que muestra el formulario de asignación de platos a menus.
   showAssignDishesForm(dishes, menus) {
     this.main.replaceChildren();
     if (this.categories.children.length > 1)
@@ -731,6 +733,7 @@ class RestaurantView {
     container.append(form);
   }
 
+
   //Método para mostrar los menus dondse encuentran asignados los platos.
   showMenusWithDish(dish, menus) {
     const menusList = document.getElementById("menusList");
@@ -748,7 +751,7 @@ class RestaurantView {
     }
   }
 
-  //Método que muestra el modal que proporcionará retroalimentación al usuario.
+  //Método que muestra el modal que proporcionará retroalimentación al usuario a la hora de crear un plato.
   showNewDishModal(done, dish, error) {
     const messageModalContainer = document.getElementById("messageModal");
     const messageModal = new bootstrap.Modal("#messageModal");
@@ -780,6 +783,7 @@ class RestaurantView {
     });
   }
 
+  //Método que muestra el modal que proporcionará retroalimentación al usuario a la hora de eliminar un plato.
   showRemoveDishModal(done, dish, error) {
     const productList = document.getElementById("dish-list");
     const messageModalContainer = document.getElementById("messageModal");
@@ -819,6 +823,7 @@ class RestaurantView {
     });
   }
 
+  //Método que muestra el formulario para crear una categoría.
   showNewCategoryForm() {
     this.main.replaceChildren();
     if (this.categories.children.length > 1)
@@ -874,6 +879,7 @@ class RestaurantView {
     this.main.append(container);
   }
 
+  //Método que muestra el formulario para modificar una categoría de un plato.
   showModifyCategoryForm(dishes, categories) {
     this.main.replaceChildren();
     if (this.categories.children.length > 1)
@@ -959,6 +965,7 @@ class RestaurantView {
     }
   }
 
+  //Método para mostrar el modal de mensaje de retroalimnetación a la hora de asignar un plato a una categoría.
   showAssignDishCategoryModal(done, dish, error, categories) {
     const categoryList = document.getElementById("categoryList");
     const messageModalContainer = document.getElementById("messageModal");
@@ -1011,6 +1018,7 @@ class RestaurantView {
     });
   }
 
+  //Método para mostrar el modal de mensaje de retroalimentación a la hora de desasignar un plato de una categoría.
   showDesassignDishCategoryModal(done, dish, error,categories) {
     const categoryList = document.getElementById("categoryList");
     const messageModalContainer = document.getElementById("messageModal");
@@ -1061,6 +1069,7 @@ class RestaurantView {
     });
   }
 
+  //Método para mostrar el modal de mensaje de retroalimentación a la hora de crear un restaurante.
   showNewRestaurantModal(done, restaurant, error) {
     const messageModalContainer = document.getElementById("messageModal");
     const messageModal = new bootstrap.Modal("#messageModal");
@@ -1127,6 +1136,7 @@ class RestaurantView {
     this.main.append(container);
   }
 
+  //Método que muestra el formulario para crear un restaurante.
   shownewRestaurantForm() {
     this.main.replaceChildren();
     if (this.categories.children.length > 1)
@@ -1204,6 +1214,7 @@ class RestaurantView {
     this.main.append(container);
   }
 
+  //Método para mostrar retroalimentación al asignar un plato a un menú.
   showAssignDishModal(done, dish, error) {
     const productList = document.getElementById("menusList");
     const messageModalContainer = document.getElementById("messageModal");
@@ -1259,6 +1270,7 @@ class RestaurantView {
     });
   }
 
+  //Método para mostrar retroalimentación al desasignar un plato a un menú.
   showDesassignDishModal(done, dish, error) {
     const productList = document.getElementById("menusList");
     const messageModalContainer = document.getElementById("messageModal");
@@ -1314,6 +1326,7 @@ class RestaurantView {
     });
   }
 
+  //Método para mostrar retroalimentación al crear una nueva categoría.
   showNewCategoryModal(done, cat, error) {
     const messageModalContainer = document.getElementById("messageModal");
     const messageModal = new bootstrap.Modal("#messageModal");
@@ -1345,6 +1358,7 @@ class RestaurantView {
     });
   }
 
+  //Método para mostrar retroalimentación al borrar una categoría.
   showRemoveCategoryModal(done, cat, error) {
     const messageModalContainer = document.getElementById("messageModal");
     const messageModal = new bootstrap.Modal("#messageModal");
@@ -1385,6 +1399,7 @@ class RestaurantView {
     });
   }
 
+  //Método para actualizar las categorías en los menús de navegación al crear o eliminar categorías.
   showUpdateCategoryMenu(cat) {
     const navCats = document.getElementById("navCats");
     const container = navCats.nextElementSibling;
@@ -1397,6 +1412,7 @@ class RestaurantView {
     }
   }
 
+  //Método para actualizar los restaurantes en los menús de navegación al crear restaurantes.
   showUpdateRestaurantMenu(restaurants) {
     const menuRestaurant = document.getElementById("menus-restaurant");
     menuRestaurant.replaceChildren();
@@ -1520,11 +1536,13 @@ class RestaurantView {
     }
   }
 
+  //Método para enlazar el formulario de nuevo plato con el manejador de eventos correspondiente.
   bindNewDishForm(handler) {
     newDishValidation(handler);
   }
 
-  bindRemoveProduct(handler) {
+  //Método para enlazar el formulario de eliminar categoría con el manejador de eventos correspondiente.
+  bindRemoveDish(handler) {
     const button = document.getElementById("eliminar");
     const select = document.getElementById("rpDishes");
 
@@ -1540,6 +1558,7 @@ class RestaurantView {
     });
   }
 
+  //Método para enlazar el formulario de desasignar plato de menú con el manejador de eventos correspondiente. 
   bindDesAssignDishInMenu(handler) {
     const buttonDesasignar = document.getElementById("desasignar");
     const selectDishes = document.getElementById("rpDishes");
@@ -1558,6 +1577,7 @@ class RestaurantView {
     });
   }
 
+  //Método para enlazar el formulario de asignar plato de menú con el manejador de eventos correspondiente.
   bindAssignDishInMenu(handler) {
     const button = document.getElementById("Asignar");
     const selectDishes = document.getElementById("rpDishes");
@@ -1576,6 +1596,7 @@ class RestaurantView {
     });
   }
 
+  //Método para enlazar el formulario de asignar plato de categoría con el manejador de eventos correspondiente.
   bindAssignDishInCategory(handler) {
     const button = document.getElementById("Asignar");
     const selectDishes = document.getElementById("rpDishes");
@@ -1594,45 +1615,50 @@ class RestaurantView {
     });
   }
 
+  //Método para enlazar el formulario de desasignar plato de categoría con el manejador de eventos correspondiente.
   bindDesassignDishInCategory(handler) {
     const button = document.getElementById("desasignar");
     const selectDishes = document.getElementById("rpDishes");
     const selectCategories = document.getElementById("rpCategories");
 
     button.addEventListener("click", function (event) {
-      // Obtener el valor seleccionado del select
+      //Obtener el valor seleccionado del select.
       const selectedDish = selectDishes.value;
       const selectedCategory = selectCategories.value;
 
-      // Llamar al manejador con el valor seleccionado del plato
+      //Llamar al manejador con el valor seleccionado del plato.
       handler(selectedDish, selectedCategory);
 
-      // Prevenir el comportamiento predeterminado del botón (enviar formulario)
+      //Prevenir el comportamiento predeterminado del botón (enviar formulario).
       event.preventDefault();
     })
   }
 
+  //Método para enlazar el apartado de mostrar platos en menú con el manejador de eventos correspondiente.
   bindShowDishInMenus(handle) {
     document.getElementById("rpDishes").addEventListener("change", function () {
       const selectDishes = document.getElementById("rpDishes");
       console.log(selectDishes.value);
-      // Llamar al controlador para manejar la selección del plato
+      
       handle(selectDishes.value);
     });
   }
 
+  //Método para enlazar el apartado de mostrar platos en categoría con el manejador de eventos correspondiente.
   bindShowDishInCategories(handle) {
     document.getElementById("rpDishes").addEventListener("change", function () {
       const selectDishes = document.getElementById("rpDishes");
-      // Llamar al controlador para manejar la selección del plato
+      
       handle(selectDishes.value);
     });
   }
 
+  //Método para enlazar el formulario de nueva categoría con el manejador de eventos correspondiente.
   bindNewCategoryForm(handler) {
     newCategoryValidation(handler);
   }
 
+  //Método para enlazar el formulario de eliminar categoría con el manejador de eventos correspondiente.
   bindRemoveCategoryForm(delHandler) {
     const removeContainer = document.getElementById("removeCategory");
     const buttons = removeContainer.getElementsByTagName("a");
@@ -1643,10 +1669,12 @@ class RestaurantView {
     }
   }
 
+  //Método para enlazar el formulario de nuevo restaurante con el manejador de eventos correspondiente.
   bindNewRestaurantForm(handler) {
     newRestaurantValidation(handler);
   }
 
+  //Método para enlazar el menú de administración de la página con el manejador de eventos correspondiente.
   bindAdminMenu(
     hNewDish,
     hRemoveDish,

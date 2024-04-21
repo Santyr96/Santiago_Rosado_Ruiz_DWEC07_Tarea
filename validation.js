@@ -1,3 +1,4 @@
+//Función que se encarga de mostrar feedback al usuario, a la hora de validar el formulario.
 function showFeedBack(input, valid, message) {
   const validClass = valid ? "is-valid" : "is-invalid";
   const messageDiv = valid
@@ -15,6 +16,7 @@ function showFeedBack(input, valid, message) {
     messageDiv.innerHTML = message;
   }
 }
+//Función que se encarga de validar el formulario.
 function defaultCheckElement(event) {
   this.value = this.value.trim();
   if (!this.checkValidity()) {
@@ -24,6 +26,7 @@ function defaultCheckElement(event) {
   }
 }
 
+//Función que se encarga de validar el formulario para la creación de un plato.
 function newDishValidation(handler) {
   const form = document.forms.fNewDish;
   form.setAttribute("novalidate", "");
@@ -115,6 +118,8 @@ function newDishValidation(handler) {
   
 }
 
+
+//Función que se encarga de validar el formulario para la creación de una categoría.
 function newCategoryValidation(handler) {
   const form = document.forms.fNewCategory;
   form.setAttribute("novalidate", true);
@@ -162,6 +167,7 @@ function newCategoryValidation(handler) {
   form.ncUrl.addEventListener("change", defaultCheckElement);
 }
 
+//Función que se encarga de validar el formulario para la creación de un restaurante.
 function newRestaurantValidation(handler) {
   const form = document.forms.fNewRestaurant;
   form.setAttribute("novalidate", "");

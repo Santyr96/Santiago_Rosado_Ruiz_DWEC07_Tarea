@@ -387,8 +387,6 @@ class RestaurantController {
       error = exception;
       this[VIEW].showNotDishes(error);
     }
-
-   
   };
 
   //Manejador de eventos para mostrar los platos en los que se encuentra el alérgeno indicado. Sigue el mismo proceso que el anterior.
@@ -584,13 +582,70 @@ class RestaurantController {
     }
   };
 
-  //Manejador de eventos que e encarga de mostrar el formulario de crear plato.
+  //Manejador de eventos que se encarga de mostrar el formulario de crear plato.
   handleNewDishForm = () => {
     this[VIEW].showDishCreationForm(
       this[MODEL].categories,
       this[MODEL].allergics
     );
     this[VIEW].bindNewDishForm(this.handleNewDish);
+    this[BREAD].removeAllCrumbs();
+    this[BREAD].addCrumb("Administración", "Crear plato");
+  };
+
+  //Manejador de eventos que se encarga de mostrar el formulario de eliminar plato. 
+  handleRemoveDishForm = () => {
+    this[VIEW].showRemoveDishForm(this[MODEL].dishes);
+    this[VIEW].bindRemoveDish(this.handleRemoveDish);
+    this[BREAD].removeAllCrumbs();
+    this[BREAD].addCrumb("Administración", "Eliminar platos");
+  };
+
+  //Manejador de eventos que se encarga de mostrar el formulario para asignar o desasignar un plato de un menú.
+  handleAssDssDishForm = () => {
+    this[VIEW].showAssignDishesForm(this[MODEL].dishes, this[MODEL].menus);
+    this[VIEW].bindShowDishInMenus(this.handleShowDishInMenus);
+    this[VIEW].bindAssignDishInMenu(this.handleAssignDishtoMenu);
+    this[VIEW].bindDesAssignDishInMenu(this.handleDesassignDishToMenu);
+    this[BREAD].removeAllCrumbs();
+    this[BREAD].addCrumb("Administración", "Asignar platos a menús");
+  };
+
+  //Manejador de eventos que se encarga de mostrar el formulario para asignar o desasignar un plato a una categoría.
+  handleModifyCategoryofDish = () => {
+    this[VIEW].showModifyCategoryForm(
+      this[MODEL].dishes,
+      this[MODEL].categories
+    );
+    this[VIEW].bindShowDishInCategories(this.handleShowDishInCategories);
+    this[VIEW].bindAssignDishInCategory(this.handleAssignDishtoCategory);
+    this[VIEW].bindDesassignDishInCategory(this.handleDesassignDishToCategory);
+    this[BREAD].removeAllCrumbs();
+    this[BREAD].addCrumb("Administración", "Modificar categorías");
+  };
+
+  //Manejador de eventos que se encarga de mostrar el formulario para crear una nueva categoría.
+  handleNewCategoryForm = () => {
+    this[VIEW].showNewCategoryForm();
+    this[VIEW].bindNewCategoryForm(this.handleCreateCategory);
+    this[BREAD].removeAllCrumbs();
+    this[BREAD].addCrumb("Administración", "Crear Categoría");
+  };
+
+  //Manejador de eventos que se encarga de mostrar el formulario para eliminar una categoría.
+  handleRemoveCategoryForm = () => {
+    this[VIEW].showRemoveCategoryForm(this[MODEL].categories);
+    this[VIEW].bindRemoveCategoryForm(this.handleRemoveCategory);
+    this[BREAD].removeAllCrumbs();
+    this[BREAD].addCrumb("Administración", "Eliminar Categoría");
+  };
+
+  //Manejador de eventos que se encarga de mostrar el formulario para crear un nuevo restaurante.
+  handleNewRestaurantForm = () => {
+    this[VIEW].shownewRestaurantForm();
+    this[VIEW].bindNewRestaurantForm(this.handleNewRestaurant);
+    this[BREAD].removeAllCrumbs();
+    this[BREAD].addCrumb("Administración", "Crear Restaurante");
   };
 
   //Manejador de eventos que se encarga de la gestión para crear un nuevo plato.
@@ -631,25 +686,7 @@ class RestaurantController {
     this[VIEW].showNewDishModal(done, dish, error);
   };
 
-  handleRemoveDishForm = () => {
-    this[VIEW].showRemoveDishForm(this[MODEL].dishes);
-    this[VIEW].bindRemoveProduct(this.handleRemoveDish);
-  };
-
-  handleAssDssDishForm = () => {
-    this[VIEW].showAssignDishesForm(this[MODEL].dishes, this[MODEL].menus);
-    this[VIEW].bindShowDishInMenus(this.handleShowDishInMenus);
-    this[VIEW].bindAssignDishInMenu(this.handleAssignDishtoMenu);
-    this[VIEW].bindDesAssignDishInMenu(this.handleDesassignDishToMenu);
-  };
-
-  handleModifyCategoryofDish = () => {
-    this[VIEW].showModifyCategoryForm(this[MODEL].dishes, this[MODEL].categories);
-    this[VIEW].bindShowDishInCategories(this.handleShowDishInCategories);
-    this[VIEW].bindAssignDishInCategory(this.handleAssignDishtoCategory);
-    this[VIEW].bindDesassignDishInCategory(this.handleDesassignDishToCategory);
-  };
-
+  //Manejador de eventos que se encarga de la gestión para eliminar un plato.
   handleRemoveDish = (name) => {
     let done;
     let error;
@@ -667,6 +704,7 @@ class RestaurantController {
     this[VIEW].showRemoveDishModal(done, dish, error);
   };
 
+  //Manejador de eventos que se encarga de la gestión para asignar un plato a un menú.
   handleAssignDishtoMenu = (name, menuName) => {
     let done;
     let error;
@@ -685,6 +723,7 @@ class RestaurantController {
     this[VIEW].showAssignDishModal(done, dish, error);
   };
 
+  //Manejador de eventos que se encarga de la gestión para desasignar un plato de un menú.
   handleDesassignDishToMenu = (name, menuName) => {
     let done;
     let error;
@@ -704,6 +743,7 @@ class RestaurantController {
     this[VIEW].showDesassignDishModal(done, dish, error);
   };
 
+  //Manejador de eventos que se encarga de mostrar los menús a los que pertenece un plato.
   handleShowDishInMenus = (dish) => {
     let menus;
     try {
@@ -717,6 +757,7 @@ class RestaurantController {
     }
   };
 
+  //Manejador de eventos que se encarga de mostrar las categorías a las que pertenece un plato.
   handleShowDishInCategories = (dish) => {
     let categories;
     try {
@@ -728,19 +769,9 @@ class RestaurantController {
         exception
       );
     }
-  }
-  
-
-  handleNewCategoryForm = () => {
-    this[VIEW].showNewCategoryForm();
-    this[VIEW].bindNewCategoryForm(this.handleCreateCategory);
   };
 
-  handleNewRestaurantForm = () => {
-    this[VIEW].shownewRestaurantForm();    
-    this[VIEW].bindNewRestaurantForm(this.handleNewRestaurant);
-  };
-
+  //Manejador para crear una categoría.
   handleCreateCategory = (name, url, desc) => {
     const cat = this[MODEL].createCategory(name, url);
     cat.description = desc;
@@ -756,15 +787,9 @@ class RestaurantController {
     this[VIEW].showNewCategoryModal(done, cat, error);
     this[VIEW].showUpdateCategoryMenu(this[MODEL].categories);
     this[VIEW].bindDishesCategoryInMenu(this.handleDishesCategoryList);
-
   };
 
-  //Manejador para eliminar una categoría.
-  handleRemoveCategoryForm = () => {
-    this[VIEW].showRemoveCategoryForm(this[MODEL].categories);
-    this[VIEW].bindRemoveCategoryForm(this.handleRemoveCategory);
-  };
-
+//Manejador para eliminar una categoría.
   handleRemoveCategory = (name) => {
     let done;
     let error;
@@ -782,6 +807,7 @@ class RestaurantController {
     this[VIEW].bindDishesCategoryInMenu(this.handleDishesCategoryList);
   };
 
+  //Manejador para asignar un plato a una categoría.
   handleAssignDishtoCategory = (name, categoryName) => {
     let done;
     let error;
@@ -802,6 +828,7 @@ class RestaurantController {
     this[VIEW].showAssignDishCategoryModal(done, dish, error, categories);
   };
 
+  //Manejador para desasignar un plato de una categoría.
   handleDesassignDishToCategory = (name, categoryName) => {
     let done;
     let error;
@@ -820,23 +847,18 @@ class RestaurantController {
       error = exception;
     }
 
-    this[VIEW].showDesassignDishCategoryModal(done, dish, error,categories);
+    this[VIEW].showDesassignDishCategoryModal(done, dish, error, categories);
   };
 
-  handleNewRestaurant = (
-    name,
-    description,
-    url,
-    latitude,
-    longitude
-  ) => {
+  //Manejador para crear un nuevo restaurante.
+  handleNewRestaurant = (name, description, url, latitude, longitude) => {
     let done;
     let error;
     let restaurant;
     const location = new Coordinate(latitude, longitude);
 
     try {
-      restaurant = this[MODEL].createRestaurant(name, description,url);
+      restaurant = this[MODEL].createRestaurant(name, description, url);
       restaurant.image = url;
       restaurant.description = description;
       restaurant.location = location;
@@ -851,10 +873,8 @@ class RestaurantController {
     this[VIEW].showNewRestaurantModal(done, restaurant, error);
     this[VIEW].showUpdateRestaurantMenu(this[MODEL].restaurants);
     this[VIEW].bindRestaurants(this.handleRestaurantInformation);
+  };
 }
-
-}
-
 
 //Exportamos la clase RestaurantController.
 export default RestaurantController;
