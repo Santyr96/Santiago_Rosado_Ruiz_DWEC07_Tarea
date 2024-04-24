@@ -4,193 +4,299 @@
  * UT05 Práctica 5: Gestión de restaurantes - DOM y MVC.
  */
 
- 
-*{
-    margin: 0;
-    padding: 0;
-    
+* {
+  margin: 0;
+  padding: 0;
 }
 
-body{
-    height: 100vh;
-    display: grid;
-    grid-template-columns: auto ;
-    grid-template-rows: 16% 1fr auto;
-    grid-template-areas: "header" "main" "pie" ;
+body {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: auto;
+  grid-template-rows: 16% 1fr auto;
+  grid-template-areas: "header" "main" "pie";
 }
-
 
 /*Estilo del encabezado.*/
-nav{
-    background-image: var(--bs-gradient);
-    
-    }
-.navbar{
-    --bs-navbar-color: none;
+nav {
+  background-image: var(--bs-gradient);
 }
-header{
-    grid-area: header;
+.navbar {
+  --bs-navbar-color: none;
 }
-
-.logo{
-    height: 4rem;
+header {
+  grid-area: header;
 }
 
-.navbar-nav .nav-link.active{
-    color: burlywood;
+.logo {
+  height: 4rem;
 }
 
-.navbar-nav{
-    --bs-nav-link-hover-color:rgb(243 242 232 / 80%);
+.navbar-nav .nav-link.active {
+  color: burlywood;
 }
 
-.options{
-    right: 5%;
-    list-style-type: none;
-    position: relative;
+.navbar-nav {
+  --bs-nav-link-hover-color: rgb(243 242 232 / 80%);
 }
 
-.options li{
-    position: relative;
+.options {
+  right: 5%;
+  list-style-type: none;
+  position: relative;
 }
 
-.options .submenu-left{
-    display:none;
-    position: absolute;
-    right: 100%;
-    top: -7px;
-    left: auto;
+.options li {
+  position: relative;
 }
 
-li:hover > .submenu-left{
-    display: block;
-      
+.options .submenu-left {
+  display: none;
+  position: absolute;
+  right: 100%;
+  top: -7px;
+  left: auto;
 }
 
-.options li{
-    --bs-dropdown-link-hover-bg:#0d6efd;
-    --bs-dropdown-link-hover-color:white;
+li:hover > .submenu-left {
+  display: block;
+}
+
+.options li {
+  --bs-dropdown-link-hover-bg: #0d6efd;
+  --bs-dropdown-link-hover-color: white;
 }
 
 /*Contenido principal*/
 
-main{
-    grid-area: main;
+main {
+  grid-area: main;
 }
 
-#categories{
-    width: 99%;
+#categories {
+  width: 99%;
 }
 
-#dish-list{
-    width: 99%;
+#dish-list {
+  width: 99%;
 }
-.rew{
-    display: flex;
-    justify-content: center;
-    gap: 100px;
+.rew {
+  display: flex;
+  justify-content: center;
+  gap: 100px;
 }
-.row{
-    justify-content: center;
-    gap: 2%;
-    row-gap: 1rem;
-    padding-top: 1%;
-    text-align: center;
-}
-
-.card img{
-    padding-top: 3% ;
-    height: 50%;
+.row {
+  justify-content: center;
+  gap: 2%;
+  row-gap: 1rem;
+  padding-top: 1%;
+  text-align: center;
 }
 
-#dishes_cards{
-    margin-bottom: 2%;
+.card img {
+  padding-top: 3%;
+  height: 50%;
 }
 
-.containerInformation{
-    display: flex;
-    width: 99%;
-    justify-content: center;
+#dishes_cards {
+  margin-bottom: 2%;
 }
 
-#card_dish{
-    width: 50%;
+.containerInformation {
+  display: flex;
+  width: 99%;
+  justify-content: center;
 }
 
-.notDishes{
-    display: flex;
-    height: 100%;
-    justify-content: center;
-    align-items: center;
+#card_dish {
+  width: 50%;
+}
+
+.notDishes {
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
 }
 
 @keyframes background {
-    0% {
-        background-color: transparent;
-      }
-      100% {
-        background-color: #0d6efd;
-      }
-    }
+  0% {
+    background-color: transparent;
+  }
+  100% {
+    background-color: #0d6efd;
+  }
+}
 
 .border-animation {
-padding: 10px; 
+  padding: 10px;
   animation-name: background;
-  animation-duration: 4s; 
-  animation-fill-mode: forwards; 
-  animation-iteration-count: 1; 
-  color: white; 
+  animation-duration: 4s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: 1;
+  color: white;
 }
 
-.description{
-    text-align: justify;
+.description {
+  text-align: justify;
 }
 
-.breadcrumb{
-    --bs-breadcrumb-item-active-color: #0d6efd;
+.breadcrumb {
+  --bs-breadcrumb-item-active-color: #0d6efd;
 }
 
-.breadcrumb a{
-    color: black;
+.breadcrumb a {
+  color: black;
 }
 
 /*Pie de página*/
-footer{
-grid-area: pie;
-background-image: var(--bs-gradient);
+footer {
+  grid-area: pie;
+  background-image: var(--bs-gradient);
 }
 
-.direction{
-    padding-left: 2%;
+.direction {
+  padding-left: 2%;
 }
 
 .enlaces a,
 i:hover {
-    color: rgb(5, 5, 31);
+  color: rgb(5, 5, 31);
 }
 
-.foot-content{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding-top: 1%;
-    
+.foot-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding-top: 1%;
 }
-.social-media{
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    align-content: center;
+.social-media {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: center;
 }
 
-.icons{
-    display: flex;
-    justify-content: center;
-    gap: 10px;
+.icons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 }
 
 .social-media i {
-    padding-right: 5%;
-    font-size: 3em;
-    color: rgb(243, 235, 235);
+  padding-right: 5%;
+  font-size: 3em;
+  color: rgb(243, 235, 235);
 }
 
+button.deny {
+  background-color: rgb(248, 249, 250);
+  border-color: rgb(248, 249, 250);
+  color: rgb(52, 58, 64);
+}
+button.deny:hover {
+  background-color: rgb(52, 58, 64);
+  border-color: rgb(248, 249, 250);
+  color: rgb(248, 249, 250);
+}
+
+#login {
+  cursor: pointer;
+  display: block;
+  font-family: "Open Sans", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+  padding: 8px;
+  height: 150px;
+  color: white;
+  text-decoration: none;
+  }
+
+  #login i{
+    padding-right: 2%;
+  }
+
+
+  .user_card {
+    width: 350px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    background: #0d6efd;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    padding: 10px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0,
+    0, 0.19);
+    -webkit-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0
+    rgba(0, 0, 0, 0.19);
+    -moz-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0,
+    0, 0, 0.19);
+    border-radius: 5px;
+    }
+    .brand_logo_container {
+    position: absolute;
+    height: 170px;
+    width: 170px;
+    top: -75px;
+    border-radius: 50%;
+    background: #60a3bc;
+    padding: 10px;
+    text-align: center;
+    }
+    .brand_logo {
+    height: 150px;
+    width: 150px;
+    border-radius: 50%;
+    border: 2px solid white;
+    }
+    .form_container {
+    margin-top: 20px;
+    }
+    .login_btn {
+    width: 100%;
+    background: white !important;
+    color: black !important;
+    }
+    .login_btn:focus {
+    box-shadow: none !important;
+    outline: 0px !important;
+    }
+
+    .login_container {
+      padding: 0 2rem;
+      }
+      .input-group-text {
+      background: white !important;
+      color: rgb(12, 11, 11) !important;
+      border: 0 !important;
+      border-radius: 0.25rem 0 0 0.25rem !important;
+      }
+      .input_user,
+      .input_pass:focus {
+      box-shadow: none !important;
+      outline: 0px !important;
+      }
+      .custom-checkbox .custom-control-input:checked~.custom-controllabel::before {
+      background-color: #c0392b !important;
+      }
+
+      .input-group-text{
+        height: 100%;
+      }
+
+      #aCloseSession{
+        color: white;
+        text-decoration: none;
+      }
+
+      .img-fluid{
+        height: 20%;
+        border-radius: 30%;
+      }
+
+      .image{
+        height: 35%;
+      }
+
+      

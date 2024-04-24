@@ -40,6 +40,15 @@ class ErrorExistenceElementException extends RestaurantException {
     }
 }
 
+// Excepción personalizada para indicar valores vacios.
+class EmptyValueException extends BaseException {
+    constructor(param, fileName, lineNumber) {
+      super(`Error: The parameter ${param} can't be empty.`, fileName, lineNumber);
+      this.param = param;
+      this.name = 'EmptyValueException';
+    }
+  }
+
 /**Clase por si el objeto (categoría, menú, plato...) ya existe. */
 class ElementExistsYetException extends RestaurantException {
     constructor(message) {
@@ -109,7 +118,7 @@ export {
     BaseException, RestaurantException, InvalidAccessConstructorException,
     ErrorExistenceElementException, ElementExistsYetException, ElementRecordedYetException,
      AttributeRequiredException, ElementNotRecordedException, DishNotExistinManagerException,
-     DishExistInListException, DishNotExistInListException
+     DishExistInListException, DishNotExistInListException, EmptyValueException
 };
 
 

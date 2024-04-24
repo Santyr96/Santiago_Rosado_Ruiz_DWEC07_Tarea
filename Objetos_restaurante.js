@@ -183,4 +183,6 @@ class Coordinate {
     }
 }
 
+
+
 export {Dish, Category, Allergen, Menu, Restaurant, Coordinate };

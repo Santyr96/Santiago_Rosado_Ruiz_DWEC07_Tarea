@@ -6,7 +6,9 @@
 
 "use strict";
 //Importamos la clase Coordinate.
-import { Coordinate } from "./Objetos_restaurante.js";
+import { Coordinate } from "./Objetos_restaurante.js"; 
+//Importamos la función GetCookie.
+import { getCookie } from "./util.js";
 
 /**Creamos las propiedades privadas de nuestro controlador a través de Symbol. Estas propiedades son
  * el modelo (capa donde se recuperarán los datos almacenados), la vista (encargada de visualizar el
@@ -17,6 +19,10 @@ const VIEW = Symbol("RestaurantView");
 const BREAD = Symbol("Bread");
 const LOAD_MANAGER_OBJECTS = Symbol("loadManagerObjects");
 
+//Creación de dos Symbol para los campos privados del servicio y usuario autenticado.
+const AUTH = Symbol("AUTH");
+const USER = Symbol("USER");
+
 /**Clase que funciona como controlador, haciendo de intermediario entre el modelo y la vista. */
 class RestaurantController {
   /**El constructor recibe como parámetros el modelo, la vista y el bread. Además, para la realización de
@@ -24,10 +30,12 @@ class RestaurantController {
    * génos, menus, platos y restaurantes, para posteriormente mostrarlos en la web mediante la vista.
    * También recibe el método bindInit de la vista, para los enlaces del logo e Inicio.
    */
-  constructor(model, view, bread) {
+  constructor(model, view, bread, auth) {
     this[MODEL] = model;
     this[VIEW] = view;
     this[BREAD] = bread;
+    this[AUTH] = auth;
+    this[USER] = null;
     this.onLoad();
     this[VIEW].bindInit(this.handleInit);
   }
@@ -294,6 +302,39 @@ class RestaurantController {
     this[VIEW].bindDishesCategory(this.handleDishesCategoryList);
     //Llamada al método bindDishInformation que recibe un manejador de eventos para enlazar los eventos con el manejador de eventos.
     this[VIEW].bindDishInformation(this.handleDishesInformation);
+   
+    //Detectar si existe la cookie de aceptación del mensaje.
+    if(getCookie('acceptedCookieMessage') !== true){
+      this[VIEW].showCookiesMessage();
+    }
+
+    //Detectar si existe la cookie de usuario activo.
+    if (getCookie("activeUser")){
+      //Si existe la cookie, se obtiene el usuario.
+     const userCookie = getCookie("activeUser");
+
+      if (userCookie){
+        //Se obtiene el usuario.
+        const user = this[AUTH].getUser(userCookie);
+        //Se comprueba que el usuario exista.
+        if(user){
+          //Se establece el usuario y se llama a la función onOpenSession.
+          this[USER] = user;
+          this.onOpenSession();
+        }
+      }
+      //En caso de que no existe la cookie, mostramos el formulario.
+    } else{
+      this[VIEW].showIdentificationLink();
+      this[VIEW].bindIdentificationLink(this.handleLoginForm);
+    }
+  };
+
+  /**Método para mostrar el contenido si se ha autenticado el usuario.
+   */
+  onOpenSession(){
+    this.onInit();
+    this[VIEW].showAuthUserProfile(this[USER]);
     this[VIEW].bindAdminMenu(
       this.handleNewDishForm,
       this.handleRemoveDishForm,
@@ -303,7 +344,7 @@ class RestaurantController {
       this.handleNewRestaurantForm,
       this.handleModifyCategoryofDish
     );
-  };
+  }
 
   /**Método que realiza práctica la misma funcón que la carga inicial, sin embargo, este se ejecuta al realizar
    * click en el enlace de Inicio o en el logo de la empresa.
@@ -874,6 +915,26 @@ class RestaurantController {
     this[VIEW].showUpdateRestaurantMenu(this[MODEL].restaurants);
     this[VIEW].bindRestaurants(this.handleRestaurantInformation);
   };
+
+  /**Manejador para abir el formulario. */
+  handleLoginForm = () => {
+    this[VIEW].showLoginForm();
+    this[VIEW].bindLoginForm(this.handleLogin);
+  };
+
+  /**Manejar para realizar la validación del usuario. */
+  handleLogin = (username, password, remember) => {
+    //Si el nombre del usuario y la contraseña es válido, recuperamosun objeto User del servicio de autenticación.
+    if(this[AUTH].validateUser(username, password)){
+      this[USER] = this[AUTH].getUser(username);
+      this.onOpenSession();
+      if(remember){
+        this[VIEW].setUserCookie(this[USER]);
+      }
+    } else{
+      this[VIEW].showInvalidUserMessage();
+    }
+  }
 }
 
 //Exportamos la clase RestaurantController.

@@ -16,6 +16,9 @@ import {
   ErrorExistenceElementException,
 } from "./Excepcion_gestion_restaurantes.js";
 
+//Importamos la función setCookie.
+import { setCookie } from "./util.js";
+
 /*Clase de la vista de nuestra web. Se encargará de visualizar el contenido obtenido del modelo, a través
 del controlador, en la web. */
 class RestaurantView {
@@ -27,6 +30,159 @@ class RestaurantView {
     this.options = document.getElementById("dropdowns");
     this.categories = document.getElementById("categories");
     this.nav_bread = document.getElementById("nav_bread");
+  }
+
+  /**Método para mostrar la notificación creada en la cookie. */
+  showCookiesMessage() {
+    const toast = `<div class="fixed-top p-5 mt-5">
+<div id="cookies-message" class="toast fade show bg-dark text-white
+w-100 mw-100" role="alert" aria-live="assertive" aria-atomic="true">
+<div class="toast-header">
+<h4 class="me-auto">Aviso de uso de cookies</h4>
+<button type="button" class="btn-close" data-bs-dismiss="toast"
+aria-label="Close" id="btnDismissCookie"></button>
+</div>
+<div class="toast-body p-4 d-flex flex-column">
+<p>
+Este sitio web almacena datos en cookies para activar su
+funcionalidad, entre las que se encuentra
+datos analíticos y personalización. Para poder utilizar este
+sitio, estás automáticamente aceptando
+que
+utilizamos cookies.
+</p>
+<div class="ml-auto">
+<button type="button" class="btn btn-outline-light mr-3 deny"
+id="btnDenyCookie" data-bs-dismiss="toast">
+Denegar
+</button>
+<button type="button" class="btn btn-primary"
+id="btnAcceptCookie" data-bs-dismiss="toast">
+Aceptar
+</button>
+</div>
+</div>
+</div>
+</div>`;
+    document.body.insertAdjacentHTML("afterbegin", toast);
+
+    //Añadimos listener para el botón de aceptar, que al pulsarlo, guarda la cookie.
+    const btnAcceptCookie = document.getElementById("btnAcceptCookie");
+    btnAcceptCookie.addEventListener("click", (event) => {
+      setCookie("acceptedCookieMessage", "true", 1);
+    });
+
+    //Eliminación de la notificación cuando se cierre.
+    const cookiesMessage = document.getElementById("cookies-message");
+    cookiesMessage.addEventListener("hidden.bs.toast", (event) => {
+      event.currentTarget.parentElement.remove();
+    });
+
+    //Método que se encarga de mostrar un mensaje si se deniega las cookies.
+    const denyCookieFunction = (event) => {
+      this.main.replaceChildren();
+      this.main.insertAdjacentHTML(
+        "afterbegin",
+        `<div class="container my-3"><div class="alert alert-warning" role="alert">
+					<strong>Para utilizar esta web es necesario aceptar el uso de cookies. Debe recargar la página y aceptar las condiciones para seguir navegando. Gracias.</strong>
+				</div></div>`
+      );
+      this.categories.remove();
+      this.menu.remove();
+    };
+
+    //Creación de los botones de aceptar y denegar, junto con sus listeners, que invocán al método de denegar las cookies.
+    const btnDenyCookie = document.getElementById("btnDenyCookie");
+    btnDenyCookie.addEventListener("click", denyCookieFunction);
+    const btnDismissCookie = document.getElementById("btnDismissCookie");
+    btnDismissCookie.addEventListener("click", denyCookieFunction);
+  }
+
+  /**Método para mostrar el link de autenticación del usuario. */
+  showIdentificationLink() {
+    const userArea = document.getElementById("userArea");
+    userArea.replaceChildren();
+    userArea.insertAdjacentHTML(
+      "afterbegin",
+      `<div class="account d-flex
+    mx-2 flex-column" style="text-align: right; height: 40px">
+    <a id="login" href="#"><i class="fa-solid fa-user"></i> Identificate</a>
+    </div>`
+    );
+  }
+
+  /**Método para mostrar en la vista el formulario. */
+  showLoginForm() {
+    this.main.replaceChildren();
+    const login = `<div class="container h-100">
+			<div class="d-flex justify-content-center h-100">
+				<div class="user_card">
+					<div class="d-flex justify-content-center form_container">
+					<form name="fLogin" role="form" novalidate>
+							<div class="input-group mb-3">
+								<div class="input-group-append">
+									<span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+								</div>
+								<input type="text" name="username" class="form-control input_user" value="" placeholder="usuario">
+							</div>
+							<div class="input-group mb-2">
+								<div class="input-group-append">
+									<span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+								</div>
+								<input type="password" name="password" class="form-control input_pass" value="" placeholder="contraseña">
+							</div>
+							<div class="form-group">
+								<div class="custom-control custom-checkbox">
+									<input name="remember" type="checkbox" class="custom-control-input" id="customControlInline">
+									<label class="custom-control-label" for="customControlInline">Recuerdame</label>
+								</div>
+							</div>
+								<div class="d-flex justify-content-center mt-3 login_container">
+									<button class="btn login_btn" type="submit">Acceder</button>
+						</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>`;
+    this.main.insertAdjacentHTML("afterbegin", login);
+  }
+
+  /**Método para mostar en la vista el mensaj de usuario no válido. */
+  showInvalidUserMessage() {
+    this.main.insertAdjacentHTML(
+      "beforeend",
+      `<div class="container my3"><div class="alert alert-warning" role="alert">
+    <strong>El usuario y la contraseña no son válidos. Inténtelo
+    nuevamente.</strong>
+    </div></div>`
+    );
+    document.forms.fLogin.reset();
+    document.forms.fLogin.username.focus();
+  }
+
+  /**Método para mostar el perfil del usuario. */
+  showAuthUserProfile(user) {
+    //Obtenemos el elemento donde se mostrará el perfil del usuario.
+    const userArea = document.getElementById("userArea");
+    //Limpiamos el elemento.
+    userArea.replaceChildren();
+    //Insertamos el perfil del usuario.
+    userArea.insertAdjacentHTML(
+      "afterbegin",
+      `<div class="account d-flex
+mx-2 flex-column" style="text-align: right">
+ Usuario: ${user.username} <a id="aCloseSession" href="#">Cerrar sesión</a>
+</div>
+<div class="image">
+<img class="img-fluid" alt="${user.username}" src="/Imagenes/imagen_perfil/imagen_perfil.jpg" />
+</div>`
+    );
+  }
+
+  /**Método para habilitar la cookie del usuario. */
+  setUserCookie(user) {
+    setCookie('activeUser', user.username, 1);
   }
 
   /*Método encargado de mostrar las categorías en la zona central de la web */
@@ -121,8 +277,8 @@ class RestaurantView {
     for (let index = 0; index < 3; index++) {
       const dish_random = dish[Math.floor(Math.random() * dish.length)];
       const ingredientsList = Array.isArray(dish_random.ingredients)
-      ? dish_random.ingredients.join(", ")
-      : dish_random.ingredients;
+        ? dish_random.ingredients.join(", ")
+        : dish_random.ingredients;
       //Si disponemos de un plato, lo guardamos en una variable auxiliar para eliminarlo del array, de esta manera no se repetiran los platos.
       if (dish_random) {
         const aux_random = dish_random;
@@ -134,15 +290,11 @@ class RestaurantView {
         "beforeend",
 
         `<div class="card" id="dishes_cards" style="width: 18rem;">
-      <img src="${dish_random.image}" class="card-img-top" alt="${
-          dish_random.name
-        }">
+      <img src="${dish_random.image}" class="card-img-top" alt="${dish_random.name}">
       <div class="card-body">
         <h5 class="card-title">${dish_random.name}</h5>
         <p class="card-text"><strong>Ingredientes:</strong> ${ingredientsList}</p>
-        <a href="#" class="btn btn-primary" data-dish = "${
-          dish_random.name
-        }">Propiedades</a>
+        <a href="#" class="btn btn-primary" data-dish = "${dish_random.name}">Propiedades</a>
       </div>
     </div>`
       );
@@ -158,8 +310,6 @@ class RestaurantView {
     if (this.categories.children.length > 1) {
       this.categories.children[1].remove();
     }
-
-    
 
     //Creamos un contenedor para mostrar los platos.
     const container = document.createElement("div");
@@ -185,8 +335,8 @@ class RestaurantView {
     //Insertamos las propiedades de los platos.
     for (const dish of dishes) {
       ingredientList = Array.isArray(dish.ingredients)
-      ? dish.ingredients.join(", ")
-      : dish.ingredients;
+        ? dish.ingredients.join(", ")
+        : dish.ingredients;
       console.log(dish);
       div.insertAdjacentHTML(
         "beforeend",
@@ -195,9 +345,7 @@ class RestaurantView {
       <div class="card-body">
         <h5 class="card-title">${dish.name}</h5>
         <p class="card-text"><strong>Ingredientes:</strong> ${ingredientList}</p>
-        <a href="#" class="btn btn-primary" data-dish="${
-          dish.name
-        }">Propiedades</a>
+        <a href="#" class="btn btn-primary" data-dish="${dish.name}">Propiedades</a>
       </div>
     </div>`
       );
@@ -302,12 +450,11 @@ class RestaurantView {
       }
     }
 
-    const containerForm = document.querySelector('.container.my-3');
+    const containerForm = document.querySelector(".container.my-3");
 
-    if(containerForm){
+    if (containerForm) {
       containerForm.replaceChildren();
     }
-
 
     //Creamos contenedores para mostrar las cards con la información de los restaurantes.
     const container = document.createElement("div");
@@ -338,12 +485,11 @@ class RestaurantView {
       container.append(div);
     }
 
-    if(containerForm){
+    if (containerForm) {
       containerForm.append(container);
       container.append(div);
     }
-    }
-  
+  }
 
   /**Método que se va a encargar de mostrar en el menú de opciones, los alérgenos de nuestra pagina. */
   showAllergenMenu(allergens) {
@@ -733,7 +879,6 @@ class RestaurantView {
     container.append(form);
   }
 
-
   //Método para mostrar los menus dondse encuentran asignados los platos.
   showMenusWithDish(dish, menus) {
     const menusList = document.getElementById("menusList");
@@ -813,7 +958,9 @@ class RestaurantView {
     const listener = (event) => {
       if (done) {
         const select = document.getElementById("rpDishes");
-        const options = select.querySelector(`option[data-dish = "${dish.name}"]`)
+        const options = select.querySelector(
+          `option[data-dish = "${dish.name}"]`
+        );
         options.remove();
         document.fRemoveDish.reset();
       }
@@ -1010,7 +1157,7 @@ class RestaurantView {
     messageModal.show();
     const listener = (event) => {
       if (done) {
-       this.showCategoryWithDish(dish.name,categories)
+        this.showCategoryWithDish(dish.name, categories);
       }
     };
     messageModalContainer.addEventListener("hidden.bs.modal", listener, {
@@ -1019,7 +1166,7 @@ class RestaurantView {
   }
 
   //Método para mostrar el modal de mensaje de retroalimentación a la hora de desasignar un plato de una categoría.
-  showDesassignDishCategoryModal(done, dish, error,categories) {
+  showDesassignDishCategoryModal(done, dish, error, categories) {
     const categoryList = document.getElementById("categoryList");
     const messageModalContainer = document.getElementById("messageModal");
     const messageModal = new bootstrap.Modal("#messageModal");
@@ -1449,6 +1596,14 @@ class RestaurantView {
     });
   }
 
+  /**Bind para dotar de funcionalidad al link del login. */
+  bindIdentificationLink(handler) {
+    const login = document.getElementById("login");
+    login.addEventListener("click", (event) => {
+      handler();
+    });
+  }
+
   /**Bind para enlazar los enlaces de los cards de las categorías. */
   bindDishesCategory(handler) {
     //Obtenemos los cards que componen las categorías.
@@ -1558,7 +1713,7 @@ class RestaurantView {
     });
   }
 
-  //Método para enlazar el formulario de desasignar plato de menú con el manejador de eventos correspondiente. 
+  //Método para enlazar el formulario de desasignar plato de menú con el manejador de eventos correspondiente.
   bindDesAssignDishInMenu(handler) {
     const buttonDesasignar = document.getElementById("desasignar");
     const selectDishes = document.getElementById("rpDishes");
@@ -1631,7 +1786,7 @@ class RestaurantView {
 
       //Prevenir el comportamiento predeterminado del botón (enviar formulario).
       event.preventDefault();
-    })
+    });
   }
 
   //Método para enlazar el apartado de mostrar platos en menú con el manejador de eventos correspondiente.
@@ -1639,7 +1794,7 @@ class RestaurantView {
     document.getElementById("rpDishes").addEventListener("change", function () {
       const selectDishes = document.getElementById("rpDishes");
       console.log(selectDishes.value);
-      
+
       handle(selectDishes.value);
     });
   }
@@ -1648,7 +1803,7 @@ class RestaurantView {
   bindShowDishInCategories(handle) {
     document.getElementById("rpDishes").addEventListener("change", function () {
       const selectDishes = document.getElementById("rpDishes");
-      
+
       handle(selectDishes.value);
     });
   }
@@ -1716,7 +1871,16 @@ class RestaurantView {
     const modifyCategoryDishLink = document.getElementById("modifyCategories");
     modifyCategoryDishLink.addEventListener("click", (event) => {
       hModifyCategoryDish();
-    })
+    });
+  }
+
+  /**Método bind para dotar de funcionalidad el formulario de autenticación. */
+  bindLoginForm(handler) {
+    const form = document.forms.fLogin;
+    form.addEventListener("submit", (event) => {
+      handler(form.username.value, form.password.value, form.remember.checked);
+      event.preventDefault();
+    });
   }
 }
 
