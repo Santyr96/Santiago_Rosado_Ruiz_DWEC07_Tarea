@@ -610,10 +610,18 @@ mx-2 flex-column" style="text-align: right">
       <div class="card-body">
         <h5 class="border-animation">${restaurant.name}</h5>
         <p class="card-text description">${restaurant.description}</p>
+        <div class="containerMap">
+        <h4>Ubicación</h4>
+        <div
+        class="m-4" id="mapid"></div>
+        </div>
       </div>
     </div>
    `
     );
+   
+    
+
     if (this.categories) {
       this.categories.append(container);
       container.append(div);
@@ -627,6 +635,30 @@ mx-2 flex-column" style="text-align: right">
       containerForm.append(container);
       container.append(div);
     }
+
+    if(restaurant.location){
+    const mapContainer = document.getElementById("mapid");
+    mapContainer.style.height = "350px";
+    mapContainer.style.border = "2px solid #faa541";
+
+    let map = L.map("mapid").setView(
+      [restaurant.location.latitude, restaurant.location.longitude],
+      13
+    );
+
+    L.tileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution:
+        'Map data &copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery &copy; <a href="https://cloudmade.com">CloudMade</a>',
+      maxZoom: 18,
+    }).addTo(map);
+
+    let circle = L.circle ([restaurant.location.latitude, restaurant.location.longitude], {
+      color: "red",
+      fillColor: "#f03",
+      fillOpacity: 0.5,
+      radius: 100,
+    }).addTo(map);
+  }
   }
 
   /**Método que se va a encargar de mostrar en el menú de opciones, los alérgenos de nuestra pagina. */
@@ -1071,7 +1103,7 @@ mx-2 flex-column" style="text-align: right">
     });
   }
 
-  showBackupModal(done){
+  showBackupModal(done) {
     const messageModalContainer = document.getElementById("messageModal");
     const messageModal = new bootstrap.Modal("#messageModal");
 
@@ -1084,11 +1116,9 @@ mx-2 flex-column" style="text-align: right">
         "afterbegin",
         `<div class="p-3">El backup ${done} se ha creado con éxito.</div>`
       );
-    } 
+    }
     messageModal.show();
-   
   }
-  
 
   //Método que muestra el modal que proporcionará retroalimentación al usuario a la hora de eliminar un plato.
   showRemoveDishModal(done, dish, error) {
@@ -1462,6 +1492,27 @@ mx-2 flex-column" style="text-align: right">
 
     container.insertAdjacentHTML(
       "beforeend",
+      `<div class="container p-4">
+          <form id="fGeocoder" method="get">
+              <h2>GeoCoder</h2>
+              <div class="form-group row">
+                  <div class="col-sm-10">
+                      <label for="address" class="col-form-label">Dirección</label>
+                      <input type="text" name="q" class="form-control" id="address" placeholder="Introduce la dirección a buscar">
+                  </div>
+                  <div class="col-sm-2 align-self-end">
+                      <button id="bAddress" class="btn btn-primary" type="submit">Buscar</button>
+                  </div>
+              </div>
+              <div id="geocoderAddresses"></div>
+              <div id="geocoderMap" class="my-2"></div>
+          </form>
+      </div>`
+  );
+
+ 
+    container.insertAdjacentHTML(
+      "beforeend",
       `<form name="fNewRestaurant" role="form" class="row g-3" novalidate>
           <div class="col-md-6 mb-3">
               <label class="form-label" for="npName">Nombre *</label>
@@ -1512,13 +1563,15 @@ mx-2 flex-column" style="text-align: right">
               <div class="valid-feedback">Correcto.</div>
           </div>
       </div>
+    
   <div class="mb-12">
               <button class="btn btn-primary" type="submit">Enviar</button>
               <button class="btn btn-primary" type="reset">Cancelar</button>
           </div>
-         
       </form>`
     );
+
+
 
     this.main.append(container);
   }
@@ -1989,6 +2042,17 @@ mx-2 flex-column" style="text-align: right">
   //Método para enlazar el formulario de nuevo restaurante con el manejador de eventos correspondiente.
   bindNewRestaurantForm(handler) {
     newRestaurantValidation(handler);
+  
+  }
+
+  //Método bind para enlazar el submit del geocoder al manejador.
+  bindGeocoder(handler) {
+    const form = document.forms.fGeocoder;
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      handler();
+      
+    });
   }
 
   //Método para enlazar el menú de administración de la página con el manejador de eventos correspondiente.

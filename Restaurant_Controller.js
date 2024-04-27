@@ -6,7 +6,7 @@
 
 "use strict";
 //Importamos la clase Coordinate.
-import { Coordinate } from "./Objetos_restaurante.js"; 
+import { Coordinate } from "./Objetos_restaurante.js";
 //Importamos la función GetCookie.
 import { getCookie } from "./util.js";
 
@@ -18,6 +18,9 @@ const MODEL = Symbol("RestaurantModel");
 const VIEW = Symbol("RestaurantView");
 const BREAD = Symbol("Bread");
 const LOAD_MANAGER_OBJECTS = Symbol("loadManagerObjects");
+
+/**Creamos una variable que servirá para servir nuestro mapa en el geocoder. */
+let map = null;
 
 //Creación de dos Symbol para los campos privados del servicio y usuario autenticado.
 const AUTH = Symbol("AUTH");
@@ -44,15 +47,14 @@ class RestaurantController {
    * capa de modelo. Para se ha utilizado la API fetch para cargar los datos desde un archivo JSON.
    */
   async [LOAD_MANAGER_OBJECTS]() {
-    
     try {
       //Asignamos a la variable response, la carga de datos del json.
-      const response = await fetch('/data/data.json');
+      const response = await fetch("/data/data.json");
       //Asignamos a la variable data, el contenido del json.
       const data = await response.json();
 
-       //Recorremos los datos recuperados.
-       for (const literalDish of data.dishes) {
+      //Recorremos los datos recuperados.
+      for (const literalDish of data.dishes) {
         const dish = this[MODEL].createDish(literalDish.name);
         dish.ingredients = literalDish.ingredients;
         dish.description = literalDish.description;
@@ -77,34 +79,34 @@ class RestaurantController {
       for (const literalAllergen of data.allergens) {
         const allergen = this[MODEL].createAllergen(literalAllergen.name);
         this[MODEL].addAllergen(allergen);
-        for(const literalDishInAllerge of literalAllergen.dishes){
+        for (const literalDishInAllerge of literalAllergen.dishes) {
           const dish = this[MODEL].getDishByName(literalDishInAllerge);
           this[MODEL].assignAllergentoDish(allergen, dish);
         }
-        }
-      
+      }
+
       //Recorremos los menus y les asignamos los platos.
       for (const literalMenu of data.menus) {
         const menu = this[MODEL].createMenu(literalMenu.name);
         this[MODEL].addMenu(menu);
-        for(const literalDishInMenu of literalMenu.dishes){
+        for (const literalDishInMenu of literalMenu.dishes) {
           const dish = this[MODEL].getDishByName(literalDishInMenu);
           this[MODEL].assignDishtoMenu(menu, dish);
         }
       }
 
-        //Recorremos los restaurantes y los creamos.
-        for (const literalRestaurant of data.restaurants) {
-          const restaurant = this[MODEL].createRestaurant(literalRestaurant.name);
-          restaurant.description = literalRestaurant.description
-          restaurant.image = literalRestaurant.image;
-          const location = new Coordinate(literalRestaurant.location.latitude,literalRestaurant.location.longitude);
-          restaurant.location = location;
-          this[MODEL].addRestaurant(restaurant);
-        }
-        
-      
-     
+      //Recorremos los restaurantes y los creamos.
+      for (const literalRestaurant of data.restaurants) {
+        const restaurant = this[MODEL].createRestaurant(literalRestaurant.name);
+        restaurant.description = literalRestaurant.description;
+        restaurant.image = literalRestaurant.image;
+        const location = new Coordinate(
+          literalRestaurant.location.latitude,
+          literalRestaurant.location.longitude
+        );
+        restaurant.location = location;
+        this[MODEL].addRestaurant(restaurant);
+      }
     } catch (error) {
       console.error(error);
     }
@@ -118,7 +120,7 @@ class RestaurantController {
    * para enlazar los eventos con los manejadores de eventos.
    */
   onLoad = async () => {
-     await this[LOAD_MANAGER_OBJECTS]();
+    await this[LOAD_MANAGER_OBJECTS]();
     const iteratorCategories = this[MODEL].categories;
     //Llamada al método showCategories que recibe un array para mostrar las categorías en la zona central.
     this[VIEW].showCategories(iteratorCategories);
@@ -133,31 +135,31 @@ class RestaurantController {
     this[VIEW].bindDishesCategory(this.handleDishesCategoryList);
     //Llamada al método bindDishInformation que recibe un manejador de eventos para enlazar los eventos con el manejador de eventos.
     this[VIEW].bindDishInformation(this.handleDishesInformation);
-   
+
     //Detectar si existe la cookie de aceptación del mensaje.
-    if(getCookie('acceptedCookieMessage') !== true){
+    if (getCookie("acceptedCookieMessage") !== true) {
       this[VIEW].showCookiesMessage();
     }
 
     //Detectar si existe la cookie de usuario activo.
-    if (getCookie("activeUser")){
+    if (getCookie("activeUser")) {
       //Si existe la cookie, se obtiene el usuario.
-     const userCookie = getCookie("activeUser");
+      const userCookie = getCookie("activeUser");
 
-      if (userCookie){
+      if (userCookie) {
         //Se obtiene el usuario.
         const user = this[AUTH].getUser(userCookie);
         //Se comprueba que el usuario exista.
-        if(user){
+        if (user) {
           //Se establece el usuario y se llama a la función onOpenSession.
           this[USER] = user;
           this.onOpenSession();
         }
-      } else{
-          this.onCloseSession();
-        }
+      } else {
+        this.onCloseSession();
+      }
       //En caso de que no existe la cookie, mostramos el formulario.
-    } else{
+    } else {
       this[VIEW].showIdentificationLink();
       this[VIEW].bindIdentificationLink(this.handleLoginForm);
     }
@@ -165,7 +167,7 @@ class RestaurantController {
 
   /**Método para mostrar el contenido si se ha autenticado el usuario.
    */
-  onOpenSession(){
+  onOpenSession() {
     this.onInit();
     this[VIEW].showAuthUserProfile(this[USER]);
     //Llamamos al bind de cerrar sesión después de cargar el perfil de usuario.
@@ -206,8 +208,7 @@ class RestaurantController {
     this[VIEW].removeAdminMenu();
     //Eliminamos el menú para guardar platos favorits.
     this[VIEW].removeFavoriteDishMenu();
-    
-    }
+  }
 
   /**Método que realiza práctica la misma funcón que la carga inicial, sin embargo, este se ejecuta al realizar
    * click en el enlace de Inicio o en el logo de la empresa.
@@ -497,7 +498,7 @@ class RestaurantController {
     this[BREAD].addCrumb("Administración", "Crear plato");
   };
 
-  //Manejador de eventos que se encarga de mostrar el formulario de eliminar plato. 
+  //Manejador de eventos que se encarga de mostrar el formulario de eliminar plato.
   handleRemoveDishForm = () => {
     this[VIEW].showRemoveDishForm(this[MODEL].dishes);
     this[VIEW].bindRemoveDish(this.handleRemoveDish);
@@ -548,6 +549,7 @@ class RestaurantController {
   handleNewRestaurantForm = () => {
     this[VIEW].shownewRestaurantForm();
     this[VIEW].bindNewRestaurantForm(this.handleNewRestaurant);
+    this[VIEW].bindGeocoder(this.handleGeoCoder);
     this[BREAD].removeAllCrumbs();
     this[BREAD].addCrumb("Administración", "Crear Restaurante");
   };
@@ -692,7 +694,7 @@ class RestaurantController {
     this[VIEW].bindDishesCategoryInMenu(this.handleDishesCategoryList);
   };
 
-//Manejador para eliminar una categoría.
+  //Manejador para eliminar una categoría.
   handleRemoveCategory = (name) => {
     let done;
     let error;
@@ -787,40 +789,38 @@ class RestaurantController {
   /**Manejador para realizar la validación del usuario. */
   handleLogin = (username, password, remember) => {
     //Si el nombre del usuario y la contraseña es válido, recuperamosun objeto User del servicio de autenticación.
-    if(this[AUTH].validateUser(username, password)){
+    if (this[AUTH].validateUser(username, password)) {
       this[USER] = this[AUTH].getUser(username);
       this.onOpenSession();
-      if(remember){
+      if (remember) {
         this[VIEW].setUserCookie(this[USER]);
       }
-    } else{
+    } else {
       this[VIEW].showInvalidUserMessage();
     }
-  }
+  };
 
   /**Manejador para cerrar sesión. */
   handleCloseSession = () => {
     this.onCloseSession();
     this.onInit();
-    };
+  };
 
-    /**Manejador para mostrar la página para seleccionar los platos favoritos. */
+  /**Manejador para mostrar la página para seleccionar los platos favoritos. */
   handleFavouriteDish = () => {
     this[VIEW].showSelectFavouriteDishes(this[MODEL].dishes);
     this[VIEW].bindDishInformation(this.handleDishesInformation);
     this[VIEW].bindSaveDishCard(this.handleSaveFavouriteDishes);
     this[BREAD].removeAllCrumbs();
-  }
+  };
 
   /**Manejador que se va encargar de guardar los platos favoritos. */
   handleSaveFavouriteDishes = (name) => {
     try {
       const card = document.getElementById(name);
       const p = document.createElement("p");
-  
-    
+
       if (localStorage.getItem(name) === null) {
-     
         localStorage.setItem(name, name);
         p.innerHTML = "Guardado";
         card.append(p);
@@ -835,12 +835,12 @@ class RestaurantController {
       }
     } catch (exception) {
       console.error("Error al guardar los platos favoritos", exception);
-    } 
-  }
+    }
+  };
 
   /**Manejador que se va a encargar de mostrar los platos guardados en favoritos. */
   handleConsultFavouriteDishes = () => {
-    let arrayDishes =[];
+    let arrayDishes = [];
     let error = false;
     for (let i = 0; i < localStorage.length; i++) {
       let key = localStorage.key(i);
@@ -849,36 +849,132 @@ class RestaurantController {
       arrayDishes.push(dish);
     }
 
-    if(arrayDishes.length === 0){
+    if (arrayDishes.length === 0) {
       error = true;
       this[VIEW].showNotDishes(error);
     } else {
+      this[VIEW].showFavouriteDishes(arrayDishes);
+      this[VIEW].bindDishInformation(this.handleDishesInformation);
+      this[BREAD].removeAllCrumbs();
+    }
+  };
+
+  /**Manejador que se encargará de realizar la backup de todos los objetos de la app. */
+  handleBackUp = async () => {
+    let done;
+
+    try {
+      //Esperar que la función backup complete y obtener el resultado.
+      done = await this[MODEL].backup();
+    } catch (exception) {
+      console.error("Error al realizar el backup", exception);
+    }
+
+    // Mostrar el modal con el resultado del backup, sea exitoso o no
+    this[VIEW].showBackupModal(done);
+  };
+
+  /**Manejador para mostrar el geocoder. */
+  handleGeoCoder = () => {
     
-    this[VIEW].showFavouriteDishes(arrayDishes);
-    this[VIEW].bindDishInformation(this.handleDishesInformation);
-    this[BREAD].removeAllCrumbs();
-  }
+    const q = document.getElementById("address");
+    const url = new URL("https://nominatim.openstreetmap.org/search");
+    const restaurants = this[MODEL].restaurants; 
+    console.log(restaurants);
+    url.searchParams.append("format", "json");
+    url.searchParams.append("limit", 3);
+    url.searchParams.append("q", q.value);
 
-  
-}
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data); // Muestra los datos en la consola para depuración
+        const list = document.createElement("div");
+        list.classList.add("list-group");
 
- /**Manejador que se encargará de realizar la backup de todos los objetos de la app. */
- handleBackUp = async () => {
-  let done;
+        data.forEach((address) => {
+          list.insertAdjacentHTML(
+            "beforeend",
+            `
+            <a href="#" data-lat="${address.lat}" data-lon="${address.lon}" class="list-group-item list-group-item-action">
+              ${address.display_name}
+            </a>`
+          );
+        });
 
-  try {
-    //Esperar que la función backup complete y obtener el resultado.
-    done = await this[MODEL].backup();
-  } catch (exception) {
-    
-    console.error("Error al realizar el backup", exception);
-  }
+        const addresses = document.getElementById("geocoderAddresses");
+        addresses.replaceChildren();
+        addresses.append(list);
 
-  // Mostrar el modal con el resultado del backup, sea exitoso o no
-  this[VIEW].showBackupModal(done);
-}
+        document.querySelectorAll(".list-group-item").forEach((link) => {
+          link.addEventListener("click", (event) => {
+            event.preventDefault(); // Prevenir la acción por defecto del enlace
+            document
+              .querySelectorAll(".list-group-item")
+              .forEach((lnk) => lnk.classList.remove("active"));
+            event.currentTarget.classList.add("active");
 
-  
+            if (map) {
+              map.setView(
+                new L.LatLng(
+                  event.currentTarget.dataset.lat,
+                  event.currentTarget.dataset.lon
+                ),
+                15
+              );
+              L.marker([
+                event.currentTarget.dataset.lat,
+                event.currentTarget.dataset.lon,
+              ]).addTo(map);
+            } else {
+              const mapContainer = document.getElementById("geocoderMap");
+              mapContainer.innerHTML = "";
+              mapContainer.style.height = "350px";
+              mapContainer.style.border = "2px solid #faa541";
+
+              map = L.map("geocoderMap").setView(
+                [
+                  event.currentTarget.dataset.lat,
+                  event.currentTarget.dataset.lon,
+                ],
+                15
+              );
+              L.tileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                attribution:
+                  'Datos del mapa &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contribuyentes, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imágenes © <a href="http://cloudmade.com">CloudMade</a>',
+                maxZoom: 18,
+              }).addTo(map);
+              L.marker([
+                event.currentTarget.dataset.lat,
+                event.currentTarget.dataset.lon,
+              ]).addTo(map);
+            }
+
+            for (const restaurant of restaurants) {
+              const marker = L.marker([
+                restaurant.location.latitude,
+                restaurant.location.longitude,
+              ]).addTo(map);
+              marker.bindPopup(`<b>${restaurant.name}</b><br>${restaurant.description}`);
+            } 
+
+            event.preventDefault();
+          });
+        });
+      })
+      .catch((error) => {
+        console.error("Error al conectar con el servidor de mapas:", error);
+        const addresses = document.getElementById("geocoderAddresses");
+        addresses.replaceChildren();
+        addresses.insertAdjacentHTML(
+          "afterbegin",
+          `<div class="text-danger">
+          <i class="bi bi-exclamation-circle-fill"></i>
+          No se ha podido establecer la conexión con el servidor de mapas.
+        </div>`
+        );
+      });
+  };
 }
 
 //Exportamos la clase RestaurantController.
