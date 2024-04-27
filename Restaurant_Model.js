@@ -29,6 +29,7 @@ class RestaurantsManager {
         this._dishes = [];
         this._menus = [];
         this._restaurants = [];
+        this._allObjects = [];
 
         //Hacemos iterables los arrays.
         Object.defineProperty(this, 'categories', {
@@ -95,6 +96,20 @@ class RestaurantsManager {
                     *[Symbol.iterator]() {
                         for (const restaurant of array) {
                             yield restaurant;
+                        }
+                    }
+                }
+            }
+        });
+
+        Object.defineProperty(this, 'allObjects', {
+            enumerable: true,
+            get() {
+                const array = this._allObjects;
+                return {
+                    *[Symbol.iterator]() {
+                        for (const object of array) {
+                            yield object;
                         }
                     }
                 }
@@ -292,6 +307,7 @@ class RestaurantsManager {
     addCategory(...categories) {
         for (const category of categories) {
             this.#addobject(this._category, category, Category);
+            this._allObjects.push(category);
         }
         return this;
     }
@@ -308,6 +324,7 @@ class RestaurantsManager {
     addMenu(...menus) {
         for (const menu of menus) {
             this.#addobject(this._menus, menu, Menu);
+            this._allObjects.push(menu);
         }
         return this;
     }
@@ -324,6 +341,7 @@ class RestaurantsManager {
     addAllergen(...allergens) {
         for (const allergen of allergens) {
             this.#addobject(this._allergics, allergen, Allergen);
+            this._allObjects.push(allergen);
         }
         return this;
     }
@@ -355,6 +373,7 @@ class RestaurantsManager {
             const position = this.#getDishPosition(dish);
             if (position === -1) {
                 this._dishes.push(dish)
+                this._allObjects.push(dish);
                 this._dishes.sort(this.#sortobjects);
             } else {
                 throw new ElementExistsYetException(`Dish exists yet.`);
@@ -421,6 +440,7 @@ class RestaurantsManager {
             const position = this.#getRestaurantPosition(restaurant);
             if (position === -1) {
                 this._restaurants.push(restaurant)
+                this._allObjects.push(restaurant);
                 this._restaurants.sort(this.#sortobjects);
             } else {
                 throw new ElementExistsYetException(`Restaurant exists yet.`);
@@ -776,6 +796,33 @@ class RestaurantsManager {
                 return restaurant;
             }
         }
+    }
+
+    /**Función que se encargará de recuperar todos los objetos creados. */
+    getAllObjects() {
+        return this._allObjects;
+        
+    }
+
+    /**Función que se encargará de realizar el backup. */
+    async backup() {
+        const allObjects =[this.getAllObjects()]; 
+        console.log(allObjects);
+        const response = await fetch('http://localhost/backup/writeJSONBackup.php', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            
+            body: JSON.stringify({ jsonObj: JSON.stringify(allObjects) })
+        });
+
+        console.log(JSON.stringify({ jsonObj: JSON.stringify(allObjects) }));
+
+        const result = await response.text();
+        console.log(result);
+
+        return result;
     }
     
     /**Función que se encarga de crear un plato. En primer lugar, se comprueba que el plato no se encuentra en la lista. Si se encuentra, 

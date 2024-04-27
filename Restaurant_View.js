@@ -87,8 +87,10 @@ Aceptar
 					<strong>Para utilizar esta web es necesario aceptar el uso de cookies. Debe recargar la página y aceptar las condiciones para seguir navegando. Gracias.</strong>
 				</div></div>`
       );
+      this.options.remove();
       this.categories.remove();
       this.menu.remove();
+      this.nav_bread.remove();
     };
 
     //Creación de los botones de aceptar y denegar, junto con sus listeners, que invocán al método de denegar las cookies.
@@ -109,6 +111,109 @@ Aceptar
     <a id="login" href="#"><i class="fa-solid fa-user"></i> Identificate</a>
     </div>`
     );
+  }
+
+  /**Método para mostrar el menún para guardar platos favoritos. */
+  showFavoriteDishMenu() {
+    //Creamos un nuevo desplegable.
+    const favouriteDish = document.createElement("li");
+    //Le agregamos las clases Boostrap.
+    favouriteDish.classList.add("nav-item");
+    favouriteDish.classList.add("dropdown");
+    //Le agregamos el botón para expandir el contenido.
+    favouriteDish.insertAdjacentHTML(
+      "afterbegin",
+      `<a class="nav-link dropdown-toggle" href="#" id="favouriteDish" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="fa-solid fa-heart"></i>
+      Platos Favoritos</a>`
+    );
+
+    //Establecemos las opciones del desplegable.
+    const subOptions = document.createElement("ul");
+    subOptions.classList.add("dropdown-menu");
+    subOptions.insertAdjacentHTML(
+      "beforeend",
+      `<li><a id="saveFavouriteDish" class="dropdown-item" href="#">Guardar platos favoritos</a></li>`
+    );
+
+    subOptions.insertAdjacentHTML(
+      "beforeend",
+      `<li><a id="lookupDish" class="dropdown-item" href="#">Consultar platos favoritos</a></li>`
+    );
+
+    //Agregamos las opciones al desplegable.
+    favouriteDish.append(subOptions);
+    this.menu.append(favouriteDish);
+  }
+
+  /**Método para mostra las cards de todos los platos y que se seleccionen los favoritos. */
+  showSelectFavouriteDishes(dishes) {
+    this.main.replaceChildren();
+    //Creamos un contenedor para mostrar los platos.
+    const container = document.createElement("div");
+    container.id = "dish-list";
+
+    const div = document.createElement("div");
+    div.id = "dishes_cards";
+    div.classList.add("row");
+
+    let ingredientList;
+    //Insertamos las propiedades de los platos.
+    for (const dish of dishes) {
+      ingredientList = Array.isArray(dish.ingredients)
+        ? dish.ingredients.join(", ")
+        : dish.ingredients;
+      div.insertAdjacentHTML(
+        "beforeend",
+        `<div class="card" id="${dish.name}"  style="width: 18rem;">
+      <img src="${dish.image}" class="card-img-top" alt="${dish.name}">
+      <div class="card-body">
+        <h5 class="card-title">${dish.name}</h5>
+        <p class="card-text"><strong>Ingredientes:</strong> ${ingredientList}</p>
+        <a href="#" class="btn btn-primary" data-dish="${dish.name}">Propiedades</a>
+        <a href="#" class="btn btn-success"  data-dish="${dish.name}">Guardar</a>
+      </div>
+    </div>`
+      );
+    }
+
+    this.main.append(container);
+    container.append(div);
+  }
+
+  //Método para mostrar los platos guardados en favoritos.
+  showFavouriteDishes(dishes) {
+    this.main.replaceChildren();
+    //Creamos un contenedor para mostrar los platos.
+    const container = document.createElement("div");
+    container.id = "dish-list";
+
+    const div = document.createElement("div");
+    div.id = "dishes_cards";
+    div.classList.add("row");
+
+    let ingredientList;
+    for (const dish of dishes) {
+      //Insertamos las propiedades de los platos.
+      console.log(dish.name);
+      ingredientList = Array.isArray(dish.ingredients)
+        ? dish.ingredients.join(", ")
+        : dish.ingredients;
+
+      div.insertAdjacentHTML(
+        "beforeend",
+        `<div class="card" id="${dish.name}"  style="width: 18rem;">
+      <img src="${dish.image}" class="card-img-top" alt="${dish.name}">
+      <div class="card-body">
+        <h5 class="card-title">${dish.name}</h5>
+        <p class="card-text"><strong>Ingredientes:</strong> ${ingredientList}</p>
+        <a href="#" class="btn btn-primary" data-dish="${dish.name}">Propiedades</a>
+      </div>
+    </div>`
+      );
+    }
+    this.main.append(container);
+    container.append(div);
   }
 
   /**Método para mostrar en la vista el formulario. */
@@ -182,7 +287,40 @@ mx-2 flex-column" style="text-align: right">
 
   /**Método para habilitar la cookie del usuario. */
   setUserCookie(user) {
-    setCookie('activeUser', user.username, 1);
+    setCookie("activeUser", user.username, 1);
+  }
+
+  /**Método para borrar la cookie del usuario. */
+  deleteUserCookie() {
+    setCookie("activeUser", "", 0);
+  }
+
+  /**Método para eliminar los enlaces de administración. */
+  removeAdminMenu() {
+    const adminMenu = document.getElementById("adminMenu");
+    if (adminMenu) adminMenu.parentElement.remove();
+  }
+
+  /**Método para eliminar el menú de seleccionar platos favoritos. */
+  removeFavoriteDishMenu() {
+    const favouriteDish = document.getElementById("favouriteDish");
+    if (favouriteDish) favouriteDish.parentElement.remove();
+  }
+
+  /**Método para mostrar mensaje al usuario al iniciar sesión. */
+  showLoginMessage(user) {
+    const messageModalContainer = document.getElementById("messageModal");
+    const messageModal = new bootstrap.Modal("#messageModal");
+
+    const title = document.getElementById("messageModalTitle");
+    title.innerHTML = "¡Bienvenido!";
+    const body = messageModalContainer.querySelector(".modal-body");
+    body.replaceChildren();
+    body.insertAdjacentHTML(
+      "afterbegin",
+      `<div class="p-3">Hola ${user.username}!</div>`
+    );
+    messageModal.show();
   }
 
   /*Método encargado de mostrar las categorías en la zona central de la web */
@@ -647,6 +785,11 @@ mx-2 flex-column" style="text-align: right">
       `<li><a id="modifyCategories" class="dropdown-item" href="#modify-categories">Modificar categorías de un plato</a></li>`
     );
 
+    subOptions.insertAdjacentHTML(
+      "beforeend",
+      `<li><a id="backupObjects" class="dropdown-item" href="#backup-objects">Backup de los objectos creados</a></li>`
+    );
+
     menuOption.append(subOptions);
     this.menu.append(menuOption);
   }
@@ -927,6 +1070,25 @@ mx-2 flex-column" style="text-align: right">
       once: true,
     });
   }
+
+  showBackupModal(done){
+    const messageModalContainer = document.getElementById("messageModal");
+    const messageModal = new bootstrap.Modal("#messageModal");
+
+    const title = document.getElementById("messageModalTitle");
+    title.innerHTML = "Creación del Backup.";
+    const body = messageModalContainer.querySelector(".modal-body");
+    body.replaceChildren();
+    if (done) {
+      body.insertAdjacentHTML(
+        "afterbegin",
+        `<div class="p-3">El backup ${done} se ha creado con éxito.</div>`
+      );
+    } 
+    messageModal.show();
+   
+  }
+  
 
   //Método que muestra el modal que proporcionará retroalimentación al usuario a la hora de eliminar un plato.
   showRemoveDishModal(done, dish, error) {
@@ -1637,7 +1799,7 @@ mx-2 flex-column" style="text-align: right">
   /*Método para enlazar los enlaces de los cards de los platos.*/
   bindDishInformation(handler) {
     const dishes = document.getElementById("dishes_cards");
-    const links = dishes.querySelectorAll("a");
+    const links = dishes.querySelectorAll("a:not(.btn.btn-success)");
     for (const link of links) {
       link.addEventListener("click", (event) => {
         console.log(event.currentTarget.dataset.dish);
@@ -1837,7 +1999,8 @@ mx-2 flex-column" style="text-align: right">
     hnewCategory,
     hRemoveCategory,
     hNewRestaurant,
-    hModifyCategoryDish
+    hModifyCategoryDish,
+    hBackUp
   ) {
     const newDishLink = document.getElementById("newDish");
     newDishLink.addEventListener("click", (event) => {
@@ -1872,6 +2035,11 @@ mx-2 flex-column" style="text-align: right">
     modifyCategoryDishLink.addEventListener("click", (event) => {
       hModifyCategoryDish();
     });
+
+    const backUpLink = document.getElementById("backupObjects");
+    backUpLink.addEventListener("click", (event) => {
+      hBackUp();
+    });
   }
 
   /**Método bind para dotar de funcionalidad el formulario de autenticación. */
@@ -1881,6 +2049,43 @@ mx-2 flex-column" style="text-align: right">
       handler(form.username.value, form.password.value, form.remember.checked);
       event.preventDefault();
     });
+  }
+
+  /**Método bind para dotar de funcionalidad al botón de cerrar sesión. */
+  bindCloseSession(handler) {
+    document
+      .getElementById("aCloseSession")
+      .addEventListener("click", (event) => {
+        handler();
+        event.preventDefault();
+      });
+  }
+
+  /**Método bind para añadir funcionalidad al enlace de guardar platos favoritos. */
+  bindSaveFavouriteDishes(handler) {
+    document
+      .getElementById("saveFavouriteDish")
+      .addEventListener("click", (event) => {
+        handler();
+      });
+  }
+
+  /**Método bind para dar funcionalidad al enlace de mostrar platos favoritos. */
+  bindConsultFavouriteDishes(handler) {
+    document.getElementById("lookupDish").addEventListener("click", (event) => {
+      handler();
+    });
+  }
+
+  /**Método bind para dar funcionalidad al botón de guardar de las cards de los platos. */
+  bindSaveDishCard(handler) {
+    const dishesCards = document.getElementById("dishes_cards");
+    const linkGuardar = dishesCards.querySelectorAll(".btn.btn-success");
+    for (const link of linkGuardar) {
+      link.addEventListener("click", (event) => {
+        handler(event.currentTarget.dataset.dish);
+      });
+    }
   }
 }
 

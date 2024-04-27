@@ -201,7 +201,6 @@ button.deny:hover {
 
 #login {
   cursor: pointer;
-  display: block;
   font-family: "Open Sans", sans-serif;
   font-size: 1.1rem;
   font-weight: 400;
@@ -209,94 +208,98 @@ button.deny:hover {
   height: 150px;
   color: white;
   text-decoration: none;
-  }
+  display: flex;
+  gap: 8%;
+}
 
-  #login i{
-    padding-right: 2%;
-  }
+#login i {
+  padding-right: 2%;
+  
+}
 
+.user_card {
+  width: 350px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  background: #0d6efd;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  padding: 10px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  -webkit-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
+    0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  -moz-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
+    0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  border-radius: 5px;
+}
+.brand_logo_container {
+  position: absolute;
+  height: 170px;
+  width: 170px;
+  top: -75px;
+  border-radius: 50%;
+  background: #60a3bc;
+  padding: 10px;
+  text-align: center;
+}
+.brand_logo {
+  height: 150px;
+  width: 150px;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+.form_container {
+  margin-top: 20px;
+}
+.login_btn {
+  width: 100%;
+  background: white !important;
+  color: black !important;
+}
+.login_btn:focus {
+  box-shadow: none !important;
+  outline: 0px !important;
+}
 
-  .user_card {
-    width: 350px;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    background: #0d6efd;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    padding: 10px;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0,
-    0, 0.19);
-    -webkit-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0
-    rgba(0, 0, 0, 0.19);
-    -moz-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0,
-    0, 0, 0.19);
-    border-radius: 5px;
-    }
-    .brand_logo_container {
-    position: absolute;
-    height: 170px;
-    width: 170px;
-    top: -75px;
-    border-radius: 50%;
-    background: #60a3bc;
-    padding: 10px;
-    text-align: center;
-    }
-    .brand_logo {
-    height: 150px;
-    width: 150px;
-    border-radius: 50%;
-    border: 2px solid white;
-    }
-    .form_container {
-    margin-top: 20px;
-    }
-    .login_btn {
-    width: 100%;
-    background: white !important;
-    color: black !important;
-    }
-    .login_btn:focus {
-    box-shadow: none !important;
-    outline: 0px !important;
-    }
+.login_container {
+  padding: 0 2rem;
+}
+.input-group-text {
+  background: white !important;
+  color: rgb(12, 11, 11) !important;
+  border: 0 !important;
+  border-radius: 0.25rem 0 0 0.25rem !important;
+}
+.input_user,
+.input_pass:focus {
+  box-shadow: none !important;
+  outline: 0px !important;
+}
+.custom-checkbox .custom-control-input:checked ~ .custom-controllabel::before {
+  background-color: #c0392b !important;
+}
 
-    .login_container {
-      padding: 0 2rem;
-      }
-      .input-group-text {
-      background: white !important;
-      color: rgb(12, 11, 11) !important;
-      border: 0 !important;
-      border-radius: 0.25rem 0 0 0.25rem !important;
-      }
-      .input_user,
-      .input_pass:focus {
-      box-shadow: none !important;
-      outline: 0px !important;
-      }
-      .custom-checkbox .custom-control-input:checked~.custom-controllabel::before {
-      background-color: #c0392b !important;
-      }
+.input-group-text {
+  height: 100%;
+}
 
-      .input-group-text{
-        height: 100%;
-      }
+#aCloseSession {
+  color: white;
+  text-decoration: none;
+}
 
-      #aCloseSession{
-        color: white;
-        text-decoration: none;
-      }
+.img-fluid {
+  height: 20%;
+  border-radius: 30%;
+}
 
-      .img-fluid{
-        height: 20%;
-        border-radius: 30%;
-      }
+.image {
+  height: 10%;
+  width: 35%;
+}
 
-      .image{
-        height: 35%;
-      }
-
-      
+#userArea {
+  display: flex;
+}

@@ -41,238 +41,70 @@ class RestaurantController {
   }
 
   /**Método privado que se encarga de realizar la carga inicial de objetos a través de la funcionalidad de la
-   * capa de modelo.
+   * capa de modelo. Para se ha utilizado la API fetch para cargar los datos desde un archivo JSON.
    */
-  [LOAD_MANAGER_OBJECTS]() {
+  async [LOAD_MANAGER_OBJECTS]() {
+    
     try {
-      //Llamamos al método createCateogry() del modelo, para crear las categorías y recuperarlas (factorías).
-      const category1 = this[MODEL].createCategory("Carne");
-      const category2 = this[MODEL].createCategory("Pescados");
-      const category3 = this[MODEL].createCategory("Postres");
+      //Asignamos a la variable response, la carga de datos del json.
+      const response = await fetch('/data/data.json');
+      //Asignamos a la variable data, el contenido del json.
+      const data = await response.json();
 
-      category1.description = "Carnes a la parrilla";
-      category2.description = "Platos compuestos principalmente por pescados";
-      category3.description = "Postres artesanales de la casa";
+       //Recorremos los datos recuperados.
+       for (const literalDish of data.dishes) {
+        const dish = this[MODEL].createDish(literalDish.name);
+        dish.ingredients = literalDish.ingredients;
+        dish.description = literalDish.description;
+        dish.image = literalDish.image;
+        this[MODEL].addDish(dish);
+      }
 
-      category1.url = "/Imagenes/categorias/category_meal.jpg";
-      category2.url = "/Imagenes/categorias/category_fish.jpg";
-      category3.url = "/Imagenes/categorias/category_dessert.jpg";
+      //Recorremos los datos recuperados del archivo json, especificamente, los que tengan que ver con categorías.
+      for (const literalCategory of data.categories) {
+        const category = this[MODEL].createCategory(literalCategory.name);
+        category.description = literalCategory.description;
+        category.url = literalCategory.url;
+        this[MODEL].addCategory(category);
 
-      //Llamamos al método addCategory() del modelo, para añadir las categorías creadas al modelo.
-      this[MODEL].addCategory(category1, category2, category3);
+        //Recorremos los platos asignados en cada categoría para asignarlos en el manager.
+        for (const literalDishInCategory of literalCategory.dishes) {
+          const dish = this[MODEL].getDishByName(literalDishInCategory);
+          this[MODEL].assignCategoryToDish(category, dish);
+        }
+      }
 
-      //Creamos los platos llamando al método createDish() del modelo, para crearlos y recuperarlos (factorías).
-      const dish1 = this[MODEL].createDish("Pastel de Carne al horno");
+      for (const literalAllergen of data.allergens) {
+        const allergen = this[MODEL].createAllergen(literalAllergen.name);
+        this[MODEL].addAllergen(allergen);
+        for(const literalDishInAllerge of literalAllergen.dishes){
+          const dish = this[MODEL].getDishByName(literalDishInAllerge);
+          this[MODEL].assignAllergentoDish(allergen, dish);
+        }
+        }
+      
+      //Recorremos los menus y les asignamos los platos.
+      for (const literalMenu of data.menus) {
+        const menu = this[MODEL].createMenu(literalMenu.name);
+        this[MODEL].addMenu(menu);
+        for(const literalDishInMenu of literalMenu.dishes){
+          const dish = this[MODEL].getDishByName(literalDishInMenu);
+          this[MODEL].assignDishtoMenu(menu, dish);
+        }
+      }
 
-      const dish2 = this[MODEL].createDish(
-        "Salmón a la plancha con arroz y espárragos"
-      );
-
-      const dish3 = this[MODEL].createDish("Solomillo con salsa de pistacho");
-
-      const dish4 = this[MODEL].createDish(
-        "Brocheta de calabacín y polló al limón"
-      );
-
-      const dish5 = this[MODEL].createDish("Peceto de ternera al vino tinto");
-
-      const dish6 = this[MODEL].createDish(
-        "Ensalada de átun con arroz y espárragos"
-      );
-
-      const dish7 = this[MODEL].createDish("Sopa de pescado");
-
-      const dish8 = this[MODEL].createDish("Pulpo a la plancha con polenta");
-
-      const dish9 = this[MODEL].createDish("Coulan de chocolate");
-
-      const dish10 = this[MODEL].createDish("Tarta de queso de la casa");
-
-      const dish11 = this[MODEL].createDish(
-        "Tartaleta de lima con Gin & Tonic"
-      );
-
-      const dish12 = this[MODEL].createDish(
-        "Pudding de albahaca con frutos rojos"
-      );
-
-      /**Creación de la propiedad ingredientes, imagen y descripción para los platos. */
-      dish1.ingredients = ["Carne de res", "Harina"];
-      dish2.ingredients = ["Salmón", "Arroz", "Espárragos"];
-      dish3.ingredients = ["Solomillo", "Pistacho", "Pimiento"];
-      dish4.ingredients = ["Calabacín", "Pollón", "Limón", "Cebolla"];
-      dish5.ingredients = ["Ternera", "Vino tinto", "Azúcar"];
-      dish6.ingredients = ["Átun", "Arroz", "Espárragos"];
-      dish7.ingredients = ["Gambas", "Langostino"];
-      dish8.ingredients = ["Pulpo", "Polenta"];
-      dish9.ingredients = ["Chocolate"];
-      dish10.ingredients = ["Queso crema", "Azúcar", "Harina", "Leche"];
-      dish11.ingredients = ["Lima", "Gin & Tonic"];
-      dish12.ingredients = ["Albahaca", "Frutos rojos", "Azúcar"];
-
-      dish1.image = "/Imagenes/Platos/pastel_carne.jpg";
-      dish2.image = "/Imagenes/Platos/salmon.jpg";
-      dish3.image = "/Imagenes/Platos/solomillo.jpg";
-      dish4.image = "/Imagenes/Platos/brochetas-de-pollo-al-horno.jpg";
-      dish5.image = "/Imagenes/Platos/peceto_tinto.jpg";
-      dish6.image = "/Imagenes/Platos/ensalada_atun.jpg";
-      dish7.image = "/Imagenes/Platos/sopa_pescado.jpg";
-      dish8.image = "/Imagenes/Platos/pulpo.jpg";
-      dish9.image = "/Imagenes/Platos/coulan.jpg";
-      dish10.image = "/Imagenes/Platos/tarta_queso.jpg";
-      dish11.image = "/Imagenes/Platos/tartaleta.png";
-      dish12.image = "/Imagenes/Platos/puddin.png";
-
-      dish1.description = `Un clásico reconfortante de la cocina, el pastel de carne al horno es una deliciosa obra maestra de capas jugosas de carne molida sazonada, 
-      intercaladas con tiernas capas de puré de papas. Horneado a la perfección, este plato ofrece una explosión de sabores reconfortantes, 
-      con la carne jugosa y bien sazonada que se combina armoniosamente con la suavidad cremosa del puré de papas. 
-      Es la definición misma de confort en cada bocado.`;
-      dish2.description = `El salmón a la plancha con arroz y espárragos es una deliciosa sinfonía de sabores y texturas. En este elegante plato, 
-      un filete de salmón perfectamente dorado reposa sobre un lecho de arroz blanco, tierno y esponjoso, acompañado de espárragos frescos y crujientes. 
-      El Salmón a la plancha con arroz y espárragos es una deliciosa combinación de sabores.`;
-      dish3.description = `El solomillo con salsa de pistacho es un plato sofisticado y lleno de sabor. Esta joya culinaria presenta un solomillo tierno y jugoso, 
-      cocinado a la perfección, y bañado en una rica y cremosa salsa de pistachos, que le aporta una textura única y un sabor ligeramente dulce`;
-      dish4.description = `La brocheta de calabacín y pollo es un plato vibrante y lleno de sabor, perfecto para los amantes de la comida saludable y deliciosa. 
-      Alternando trozos de pollo tierno y jugoso con rodajas frescas de calabacín, estas brochetas se cocinan a la parrilla hasta alcanzar la perfección dorada, 
-      lo que les confiere un delicioso sabor ahumado`;
-      dish5.description = `El peceto de ternera al vino tinto es un plato elegante y sabroso, que combina la ternura del peceto con la riqueza del vino tinto. 
-      Este corte de carne se cocina lentamente en una salsa de vino tinto, junto con hierbas aromáticas y verduras seleccionadas, lo que permite que los sabores se 
-      fusionen maravillosamente.`;
-      dish6.description = `La ensalada de atún con arroz y espárragos es una delicia ligera y nutritiva, perfecta para un almuerzo refrescante o una cena ligera. 
-      Este plato combina la suavidad del atún en lata, rico en omega-3, con el arroz esponjoso y tierno y los espárragos crujientes y ligeramente al dente, 
-      creando una mezcla de texturas agradables al paladar.`;
-      dish7.description = `La sopa de pescado es un reconfortante y aromático plato que captura la esencia del mar. Hecha con una base de caldo rico y sabroso, 
-      obtenido de la cocción lenta de pescados y mariscos, esta sopa se enriquece con una selección de hierbas y vegetales frescos.`;
-      dish8.description = `El pulpo a la plancha con polenta es una combinación sublime de sabores y texturas. El pulpo, tierno y ligeramente ahumado por la parrilla,
-       se sirve sobre una base de polenta cremosa y reconfortante. La polenta, elaborada con harina de maíz y caldo, adquiere una textura suave y sedosa que complementa 
-       perfectamente la firmeza del pulpo.`;
-      dish9.description = `El coulant de chocolate es una exquisitez indulgente que deleita los sentidos. Al romper su delicada corteza exterior, revela un corazón fundido 
-      de chocolate caliente y sedoso que fluye hacia fuera, creando una experiencia sensorial inolvidable.`;
-      dish10.description = `La tarta de queso es un clásico reconfortante que combina la suavidad y cremosidad del queso con la dulzura sutil de una base de galletas trituradas. 
-      Esta delicia horneada se caracteriza por su textura sedosa y su sabor agradablemente ácido, que resulta de la combinación de queso crema, huevos, azúcar y, a veces, un 
-      toque de vainilla o ralladura de limón. La base de galleta aporta un contraste crujiente y sabroso que complementa perfectamente la consistencia suave del relleno de queso.`;
-      dish11.description = `La tartaleta es una delicia que combina la dulzura sutil de una base de galletas trituradas con el sabor delicioso de una tarta.`;
-      dish12.description = `El pudding es un clásico postre reconfortante que ha cautivado los paladares durante generaciones. Hecho con una base de ingredientes simples como leche, 
-      huevos, azúcar y pan o galletas, el pudding adquiere una textura suave y cremosa durante su cocción lenta al horno o al vapor.`;
-
-      //Llamamos al método addDish() del modelo, para añadir los platos creados al modelo.
-      this[MODEL].addDish(
-        dish1,
-        dish2,
-        dish3,
-        dish4,
-        dish5,
-        dish6,
-        dish7,
-        dish8,
-        dish9,
-        dish10,
-        dish11,
-        dish12
-      );
-
-      //Llamamos al método assignCategoryToDish() del modelo, para asignar los platos a las categorías.
-      this[MODEL].assignCategoryToDish(category1, dish1, dish3, dish4, dish5);
-      this[MODEL].assignCategoryToDish(category2, dish2, dish6, dish7, dish8);
-      this[MODEL].assignCategoryToDish(
-        category3,
-        dish9,
-        dish10,
-        dish11,
-        dish12
-      );
-
-      //Creamos los alérgenos.
-      const allergen1 = this[MODEL].createAllergen("Gluten");
-      const allergen2 = this[MODEL].createAllergen("Lactosa");
-      const allergen3 = this[MODEL].createAllergen("Soja");
-      const allergen4 = this[MODEL].createAllergen("Sulfitos");
-
-      //Llamamos al método addAllergen() del modelo, para añadir los alérgenos creados.
-      this[MODEL].addAllergen(allergen1, allergen2, allergen3, allergen4);
-
-      //Llamamos al método assignDishtoAllergen() del modelo, para asignar los alérgenos a los platos.
-      this[MODEL].assignAllergentoDish(
-        allergen1,
-        dish9,
-        dish10,
-        dish11,
-        dish12
-      );
-      this[MODEL].assignAllergentoDish(
-        allergen2,
-        dish1,
-        dish3,
-        dish9,
-        dish10,
-        dish11
-      );
-      this[MODEL].assignAllergentoDish(allergen3, dish6, dish3, dish8);
-      this[MODEL].assignAllergentoDish(allergen4, dish5, dish7, dish4);
-
-      //Creamos los menús.
-      const menu1 = this[MODEL].createMenu("Menu 1");
-      const menu2 = this[MODEL].createMenu("Menu 2");
-      const menu3 = this[MODEL].createMenu("Menu 3");
-
-      //Llamamos al método addMenu() del modelo, para añadir los menús creados al modelo.
-      this[MODEL].addMenu(menu1, menu2, menu3);
-
-      //Llamamos al método assignDishtoMenu() del modelo, para asignar los platos a los menus.
-      this[MODEL].assignDishtoMenu(menu1, dish6, dish1, dish9);
-      this[MODEL].assignDishtoMenu(menu2, dish2, dish3, dish10);
-      this[MODEL].assignDishtoMenu(menu3, dish4, dish5, dish11);
-
-      //Creamos los restaurantes, llamando al método createRestaurant() del modelo, para crearlos y recuperarlos (factorías).
-      const location1 = new Coordinate(
-        "39.16132079848615",
-        "-3.0316452337293014"
-      );
-      const location2 = new Coordinate(
-        "39.16926102209715",
-        "-3.2299912480103776"
-      );
-      const location3 = new Coordinate(
-        "39.30549734708699",
-        "-3.043940753140606"
-      );
-
-      const restaurant1 = this[MODEL].createRestaurant(
-        "El Asador de la Mancha"
-      );
-
-      const restaurant2 = this[MODEL].createRestaurant("El Rincón del Quijote");
-
-      const restaurant3 = this[MODEL].createRestaurant("El Porrón");
-
-      //Creación de las propiedades descripción y localizacón para los restaurantes.
-      restaurant1.description = `El Asador de la Mancha es un restaurante especializado en asaduras, ubicado en Tomelloso (Ciudad Real) que ofrece una experiencia 
-      culinaria única y auténtica. Ubicado en el corazón de la región de La Mancha, este establecimiento se destaca por su ambiente acogedor y su cocina tradicional. Con un enfoque en 
-      la excelencia de los cortes de carne y la técnica de asado, el Asador de la Mancha deleita a sus comensales con una selección de platos que resaltan 
-      los sabores y la calidad de los ingredientes locales. Desde jugosas chuletas hasta deliciosas mollejas, cada bocado es una celebración de la rica 
-      tradición gastronómica de la zona. Con un servicio atento y una atención meticulosa a los detalles, el Asador de la Mancha ofrece una experiencia 
-      gastronómica inolvidable para los amantes de la buena comida y la cocina regional española.`;
-      restaurant2.description = `El Rincón del Quijote es un restaurante que rinde homenaje a la rica tradición gastronómica española, con un enfoque particular
-      en la alta cocina. Situado en Cinco Casas (Ciudad Real), este establecimiento combina la elegancia y el refinamiento con la pasión por la cocina de autor. 
-      Inspirados por los sabores y la cultura de La Mancha, los chefs del Rincón del Quijote crean platos innovadores que sorprenden y deleitan a los comensales 
-      más exigentes. Desde exquisitas tapas hasta elaboradas creaciones culinarias, cada plato es una obra maestra que refleja la creatividad y el talento de su 
-      equipo de cocina. Con una cuidada selección de ingredientes frescos y de alta calidad, así como un servicio impecable, el Rincón del Quijote ofrece una 
-      experiencia gastronómica única que invita a los clientes a sumergirse en un viaje culinario inolvidable.`;
-      restaurant3.description = `El Porron, ubicado en Tomelloso, es un restaurante que destaca por su versatilidad y su amplio abanico de opciones culinarias. Con una atmósfera 
-      acogedora y un ambiente familiar, este establecimiento ofrece una experiencia gastronómica para todos los gustos y ocasiones. Desde platos tradicionales de la cocina manchega 
-      hasta especialidades internacionales, el Porron tiene algo para satisfacer a todos los paladares. Ya sea que desees disfrutar de una suculenta paella, una deliciosa pizza o un exquisito 
-      plato de carne a la parrilla, este restaurante lo tiene todo. Además, su atención cálida y su servicio eficiente hacen que cada visita al Porron sea una experiencia memorable para toda 
-      la familia y los amigos.`;
-
-      restaurant1.location = location1;
-      restaurant2.location = location2;
-      restaurant3.location = location3;
-
-      restaurant1.image = "/Imagenes/Restaurantes/asador.jpg";
-      restaurant2.image = "/Imagenes/Restaurantes/quijote.jpg";
-      restaurant3.image = "/Imagenes/Restaurantes/restaurant_porron.jpg";
-      //Llamamos al método addRestaurant() del modelo, para añadir los restaurantes creados al modelo.
-      this[MODEL].addRestaurant(restaurant1, restaurant2, restaurant3);
+        //Recorremos los restaurantes y los creamos.
+        for (const literalRestaurant of data.restaurants) {
+          const restaurant = this[MODEL].createRestaurant(literalRestaurant.name);
+          restaurant.description = literalRestaurant.description
+          restaurant.image = literalRestaurant.image;
+          const location = new Coordinate(literalRestaurant.location.latitude,literalRestaurant.location.longitude);
+          restaurant.location = location;
+          this[MODEL].addRestaurant(restaurant);
+        }
+        
+      
+     
     } catch (error) {
       console.error(error);
     }
@@ -285,19 +117,18 @@ class RestaurantController {
    * splegables con las categorías, alérgenos, menus y restaurantes, se llama a los métodos bind de la vista
    * para enlazar los eventos con los manejadores de eventos.
    */
-  onLoad = () => {
-    this[LOAD_MANAGER_OBJECTS]();
+  onLoad = async () => {
+     await this[LOAD_MANAGER_OBJECTS]();
     const iteratorCategories = this[MODEL].categories;
     //Llamada al método showCategories que recibe un array para mostrar las categorías en la zona central.
     this[VIEW].showCategories(iteratorCategories);
     //Llamas a los métodos onAddCategory y onAddOptions para establecer los despegables.
     this.onAddCategory();
     this.onAddOptions();
+
     const iteratorDishes = this[MODEL].dishes;
     //Llamada al método showDishesRandom que recibe un array para mostrar los platos de forma aleatoria en la zona central.
     this[VIEW].showDishesRandom(iteratorDishes);
-    //Llamada al método showAdminMenu para mostrar en en el header el menún para la administración de nuestro modelo.
-    this[VIEW].showAdminMenu();
     //Llamada al método bindDishesCategory que recibe un manejador de eventos para enlazar los eventos con el manejador de eventos.
     this[VIEW].bindDishesCategory(this.handleDishesCategoryList);
     //Llamada al método bindDishInformation que recibe un manejador de eventos para enlazar los eventos con el manejador de eventos.
@@ -322,7 +153,9 @@ class RestaurantController {
           this[USER] = user;
           this.onOpenSession();
         }
-      }
+      } else{
+          this.onCloseSession();
+        }
       //En caso de que no existe la cookie, mostramos el formulario.
     } else{
       this[VIEW].showIdentificationLink();
@@ -335,6 +168,12 @@ class RestaurantController {
   onOpenSession(){
     this.onInit();
     this[VIEW].showAuthUserProfile(this[USER]);
+    //Llamamos al bind de cerrar sesión después de cargar el perfil de usuario.
+    this[VIEW].bindCloseSession(this.handleCloseSession);
+    //Llamamos al método show showLoginMessage, para mostrar mensaje de bienvenida.
+    this[VIEW].showLoginMessage(this[USER]);
+    //Llamada al método showAdminMenu para mostrar en en el header el menún para la administración de nuestro modelo.
+    this[VIEW].showAdminMenu();
     this[VIEW].bindAdminMenu(
       this.handleNewDishForm,
       this.handleRemoveDishForm,
@@ -342,9 +181,33 @@ class RestaurantController {
       this.handleNewCategoryForm,
       this.handleRemoveCategoryForm,
       this.handleNewRestaurantForm,
-      this.handleModifyCategoryofDish
+      this.handleModifyCategoryofDish,
+      this.handleBackUp
     );
+    //Llamada al método showFavoriteDishMenu para mostrar el menú para guardar los platos favoritos.
+    this[VIEW].showFavoriteDishMenu();
+    this[VIEW].bindSaveFavouriteDishes(this.handleFavouriteDish);
+
+    //Llamada al método showFavouriteDishes para mostrar los platos guardados en favoritos.
+    this[VIEW].bindConsultFavouriteDishes(this.handleConsultFavouriteDishes);
   }
+
+  //Método que se encargará del cierre de sessión del usuario.
+  onCloseSession() {
+    //Se elimina el usuario.
+    this[USER] = null;
+    //Se elimina la cookie de usuario.
+    this[VIEW].deleteUserCookie();
+    //Se muestra el link para identificación.
+    this[VIEW].showIdentificationLink();
+    //Se llama al bind para manejar el link de identificación.
+    this[VIEW].bindIdentificationLink(this.handleLoginForm);
+    //Eliminamos el menú de administración.
+    this[VIEW].removeAdminMenu();
+    //Eliminamos el menú para guardar platos favorits.
+    this[VIEW].removeFavoriteDishMenu();
+    
+    }
 
   /**Método que realiza práctica la misma funcón que la carga inicial, sin embargo, este se ejecuta al realizar
    * click en el enlace de Inicio o en el logo de la empresa.
@@ -735,7 +598,6 @@ class RestaurantController {
     console.log(name);
     try {
       dish = this[MODEL].getDishByName(name);
-      console.log(dish);
       this[MODEL].removeDish(dish);
       done = true;
     } catch (exception) {
@@ -922,7 +784,7 @@ class RestaurantController {
     this[VIEW].bindLoginForm(this.handleLogin);
   };
 
-  /**Manejar para realizar la validación del usuario. */
+  /**Manejador para realizar la validación del usuario. */
   handleLogin = (username, password, remember) => {
     //Si el nombre del usuario y la contraseña es válido, recuperamosun objeto User del servicio de autenticación.
     if(this[AUTH].validateUser(username, password)){
@@ -935,6 +797,88 @@ class RestaurantController {
       this[VIEW].showInvalidUserMessage();
     }
   }
+
+  /**Manejador para cerrar sesión. */
+  handleCloseSession = () => {
+    this.onCloseSession();
+    this.onInit();
+    };
+
+    /**Manejador para mostrar la página para seleccionar los platos favoritos. */
+  handleFavouriteDish = () => {
+    this[VIEW].showSelectFavouriteDishes(this[MODEL].dishes);
+    this[VIEW].bindDishInformation(this.handleDishesInformation);
+    this[VIEW].bindSaveDishCard(this.handleSaveFavouriteDishes);
+    this[BREAD].removeAllCrumbs();
+  }
+
+  /**Manejador que se va encargar de guardar los platos favoritos. */
+  handleSaveFavouriteDishes = (name) => {
+    try {
+      const card = document.getElementById(name);
+      const p = document.createElement("p");
+  
+    
+      if (localStorage.getItem(name) === null) {
+     
+        localStorage.setItem(name, name);
+        p.innerHTML = "Guardado";
+        card.append(p);
+      } else {
+        p.innerHTML = "Ya guardado";
+        card.append(p);
+      }
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const dish = localStorage.key(i);
+        console.log(localStorage.getItem(dish));
+      }
+    } catch (exception) {
+      console.error("Error al guardar los platos favoritos", exception);
+    } 
+  }
+
+  /**Manejador que se va a encargar de mostrar los platos guardados en favoritos. */
+  handleConsultFavouriteDishes = () => {
+    let arrayDishes =[];
+    let error = false;
+    for (let i = 0; i < localStorage.length; i++) {
+      let key = localStorage.key(i);
+      let value = localStorage.getItem(key);
+      let dish = this[MODEL].getDishByName(value);
+      arrayDishes.push(dish);
+    }
+
+    if(arrayDishes.length === 0){
+      error = true;
+      this[VIEW].showNotDishes(error);
+    } else {
+    
+    this[VIEW].showFavouriteDishes(arrayDishes);
+    this[VIEW].bindDishInformation(this.handleDishesInformation);
+    this[BREAD].removeAllCrumbs();
+  }
+
+  
+}
+
+ /**Manejador que se encargará de realizar la backup de todos los objetos de la app. */
+ handleBackUp = async () => {
+  let done;
+
+  try {
+    //Esperar que la función backup complete y obtener el resultado.
+    done = await this[MODEL].backup();
+  } catch (exception) {
+    
+    console.error("Error al realizar el backup", exception);
+  }
+
+  // Mostrar el modal con el resultado del backup, sea exitoso o no
+  this[VIEW].showBackupModal(done);
+}
+
+  
 }
 
 //Exportamos la clase RestaurantController.

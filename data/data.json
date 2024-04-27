@@ -1,0 +1,189 @@
+{
+  "categories": [
+    {
+      "name": "Carne",
+      "description": "Carnes a la parrilla",
+      "url": "/Imagenes/categorias/category_meal.jpg",
+      "dishes": [
+        "Pastel de Carne al horno",
+        "Solomillo con salsa de pistacho",
+        "Brocheta de calabacín y polló al limón",
+        "Peceto de ternera al vino tinto"
+      ]
+    },
+    {
+      "name": "Pescados",
+      "description": "Platos compuestos principalmente por pescados",
+      "url": "/Imagenes/categorias/category_fish.jpg",
+      "dishes": [
+        "Salmón a la plancha con arroz y espárragos",
+        "Ensalada de átun con arroz y espárragos",
+        "Sopa de pescado",
+        "Pulpo a la plancha con polenta"
+      ]
+    },
+    {
+      "name": "Postres",
+      "description": "Postres artesanales de la casa",
+      "url": "/Imagenes/categorias/category_dessert.jpg",
+      "dishes": [
+        "Coulan de chocolate",
+        "Tarta de queso de la casa",
+        "Tartaleta de lima con Gin & Tonic",
+        "Pudding de albahaca con frutos rojos"
+      ]
+    }
+  ],
+  "dishes": [
+    {
+      "name": "Pastel de Carne al horno",
+      "ingredients": ["Carne de res", "Harina"],
+      "image": "/Imagenes/Platos/pastel_carne.jpg",
+      "description": "Un clásico reconfortante de la cocina, el pastel de carne al horno es una deliciosa obra maestra de capas jugosas de carne molida sazonada..."
+    },
+    {
+      "name": "Salmón a la plancha con arroz y espárragos",
+      "ingredients": ["Salmón", "Arroz", "Espárragos"],
+      "image": "/Imagenes/Platos/salmon.jpg",
+      "description": "El salmón a la plancha con arroz y espárragos es una deliciosa sinfonía de sabores y texturas..."
+    },
+    {
+      "name": "Solomillo con salsa de pistacho",
+      "ingredients": ["Solomillo", "Pistacho", "Pimiento"],
+      "image": "/Imagenes/Platos/solomillo.jpg",
+      "description": "El solomillo con salsa de pistacho es un plato sofisticado y lleno de sabor..."
+    },
+    {
+      "name": "Brocheta de calabacín y polló al limón",
+      "ingredients": ["Calabacín", "Pollón", "Limón", "Cebolla"],
+      "image": "/Imagenes/Platos/brochetas-de-pollo-al-horno.jpg",
+      "description": "La brocheta de calabacín y pollo es un plato vibrante y lleno de sabor..."
+    },
+    {
+      "name": "Peceto de ternera al vino tinto",
+      "ingredients": ["Ternera", "Vino tinto", "Azúcar"],
+      "image": "/Imagenes/Platos/peceto_tinto.jpg",
+      "description": "El peceto de ternera al vino tinto es un plato elegante y sabroso..."
+    },
+    {
+      "name": "Ensalada de átun con arroz y espárragos",
+      "ingredients": ["Átun", "Arroz", "Espárragos"],
+      "image": "/Imagenes/Platos/ensalada_atun.jpg",
+      "description": "La ensalada de atún con arroz y espárragos es una delicia ligera y nutritiva..."
+    },
+    {
+      "name": "Sopa de pescado",
+      "ingredients": ["Gambas", "Langostino"],
+      "image": "/Imagenes/Platos/sopa_pescado.jpg",
+      "description": "La sopa de pescado es un reconfortante y aromático plato que captura la esencia del mar..."
+    },
+    {
+      "name": "Pulpo a la plancha con polenta",
+      "ingredients": ["Pulpo", "Polenta"],
+      "image": "/Imagenes/Platos/pulpo.jpg",
+      "description": "El pulpo a la plancha con polenta es una combinación sublime de sabores y texturas..."
+    },
+    {
+      "name": "Coulan de chocolate",
+      "ingredients": ["Chocolate"],
+      "image": "/Imagenes/Platos/coulan.jpg",
+      "description": "El coulant de chocolate es una exquisitez indulgente que deleita los sentidos..."
+    },
+    {
+      "name": "Tarta de queso de la casa",
+      "ingredients": ["Queso crema", "Azúcar", "Harina", "Leche"],
+      "image": "/Imagenes/Platos/tarta_queso.jpg",
+      "description": "La tarta de queso es un clásico reconfortante que combina la suavidad y cremosidad del queso..."
+    },
+    {
+      "name": "Tartaleta de lima con Gin & Tonic",
+      "ingredients": ["Lima", "Gin & Tonic"],
+      "image": "/Imagenes/Platos/tartaleta.png",
+      "description": "La tartaleta es una delicia que combina la dulzura sutil de una base de galletas trituradas..."
+    },
+    {
+      "name": "Pudding de albahaca con frutos rojos",
+      "ingredients": ["Albahaca", "Frutos rojos", "Azúcar"],
+      "image": "/Imagenes/Platos/puddin.png",
+      "description": "El pudding es un clásico postre reconfortante que ha cautivado los paladares durante generaciones..."
+    }
+  ],
+  "allergens": [
+    {
+      "name": "Gluten",
+      "dishes": [
+        "Coulan de chocolate",
+        "Tarta de queso de la casa",
+        "Tartaleta de lima con Gin & Tonic",
+        "Pudding de albahaca con frutos rojos"
+      ]
+    },
+    {
+      "name": "Lactosa",
+      "dishes": [
+        "Pastel de Carne al horno",
+        "Solomillo con salsa de pistacho",
+        "Coulan de chocolate",
+        "Tarta de queso de la casa",
+        "Tartaleta de lima con Gin & Tonic"
+      ]
+    },
+    { "name": "Soja", "dishes": [] },
+    { "name": "Sulfitos", "dishes": [] }
+  ],
+  "menus": [
+    {
+      "name": "Menu 1",
+      "dishes": [
+        "Ensalada de átun con arroz y espárragos",
+        "Pastel de Carne al horno",
+        "Coulan de chocolate"
+      ]
+    },
+    {
+      "name": "Menu 2",
+      "dishes": [
+        "Salmón a la plancha con arroz y espárragos",
+        "Solomillo con salsa de pistacho",
+        "Tarta de queso de la casa"
+      ]
+    },
+    {
+      "name": "Menu 3",
+      "dishes": [
+        "Brocheta de calabacín y polló al limón",
+        "Peceto de ternera al vino tinto",
+        "Tartaleta de lima con Gin & Tonic"
+      ]
+    }
+  ],
+  "restaurants": [
+    {
+      "name": "El Asador de la Mancha",
+      "description": "El Asador de la Mancha es un restaurante especializado en asaduras...",
+      "location": {
+        "latitude": "39.16132079848615",
+        "longitude": "-3.0316452337293014"
+      },
+      "image": "/Imagenes/Restaurantes/asador.jpg"
+    },
+    {
+      "name": "El Rincón del Quijote",
+      "description": "El Rincón del Quijote es un restaurante que rinde homenaje a la rica tradición gastronómica española...",
+      "location": {
+        "latitude": "39.16926102209715",
+        "longitude": "-3.2299912480103776"
+      },
+      "image": "/Imagenes/Restaurantes/quijote.jpg"
+    },
+    {
+      "name": "El Porrón",
+      "description": "El Porron, ubicado en Tomelloso, es un restaurante que destaca por su versatilidad y su amplio abanico de opciones culinarias...",
+      "location": {
+        "latitude": "39.30549734708699",
+        "longitude": "-3.043940753140606"
+      },
+      "image": "/Imagenes/Restaurantes/restaurant_porron.jpg"
+    }
+  ]
+}
