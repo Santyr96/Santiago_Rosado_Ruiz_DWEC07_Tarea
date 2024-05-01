@@ -875,106 +875,119 @@ class RestaurantController {
   };
 
   /**Manejador para mostrar el geocoder. */
-  handleGeoCoder = () => {
-    
-    const q = document.getElementById("address");
-    const url = new URL("https://nominatim.openstreetmap.org/search");
-    const restaurants = this[MODEL].restaurants; 
-    console.log(restaurants);
-    url.searchParams.append("format", "json");
-    url.searchParams.append("limit", 3);
-    url.searchParams.append("q", q.value);
+handleGeoCoder = () => {
+  //Obtenemos el contenedor de la dirección.
+  const q = document.getElementById("address");
+  //Obtenemos la url de la api de geocoding.
+  const url = new URL("https://nominatim.openstreetmap.org/search");
+  //Obtenemos los restaurantes.
+  const restaurants = this[MODEL].restaurants; 
 
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data); // Muestra los datos en la consola para depuración
-        const list = document.createElement("div");
-        list.classList.add("list-group");
+  //Utilizamos la función searchParams para añadir los siguiente elemtos a la url.
+  url.searchParams.append("format", "json");
+  url.searchParams.append("limit", 3);
+  url.searchParams.append("q", q.value);
 
-        data.forEach((address) => {
-          list.insertAdjacentHTML(
-            "beforeend",
-            `
-            <a href="#" data-lat="${address.lat}" data-lon="${address.lon}" class="list-group-item list-group-item-action">
-              ${address.display_name}
-            </a>`
-          );
-        });
+  //Creamos el mapa.
+  fetch(url)
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data); // Muestra los datos en la consola para depuración
+      const list = document.createElement("div");
+      list.classList.add("list-group");
 
-        const addresses = document.getElementById("geocoderAddresses");
-        addresses.replaceChildren();
-        addresses.append(list);
-
-        document.querySelectorAll(".list-group-item").forEach((link) => {
-          link.addEventListener("click", (event) => {
-            event.preventDefault(); // Prevenir la acción por defecto del enlace
-            document
-              .querySelectorAll(".list-group-item")
-              .forEach((lnk) => lnk.classList.remove("active"));
-            event.currentTarget.classList.add("active");
-
-            if (map) {
-              map.setView(
-                new L.LatLng(
-                  event.currentTarget.dataset.lat,
-                  event.currentTarget.dataset.lon
-                ),
-                15
-              );
-              L.marker([
-                event.currentTarget.dataset.lat,
-                event.currentTarget.dataset.lon,
-              ]).addTo(map);
-            } else {
-              const mapContainer = document.getElementById("geocoderMap");
-              mapContainer.innerHTML = "";
-              mapContainer.style.height = "350px";
-              mapContainer.style.border = "2px solid #faa541";
-
-              map = L.map("geocoderMap").setView(
-                [
-                  event.currentTarget.dataset.lat,
-                  event.currentTarget.dataset.lon,
-                ],
-                15
-              );
-              L.tileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                attribution:
-                  'Datos del mapa &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contribuyentes, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imágenes © <a href="http://cloudmade.com">CloudMade</a>',
-                maxZoom: 18,
-              }).addTo(map);
-              L.marker([
-                event.currentTarget.dataset.lat,
-                event.currentTarget.dataset.lon,
-              ]).addTo(map);
-            }
-
-            for (const restaurant of restaurants) {
-              const marker = L.marker([
-                restaurant.location.latitude,
-                restaurant.location.longitude,
-              ]).addTo(map);
-              marker.bindPopup(`<b>${restaurant.name}</b><br>${restaurant.description}`);
-            } 
-
-            event.preventDefault();
-          });
-        });
-      })
-      .catch((error) => {
-        console.error("Error al conectar con el servidor de mapas:", error);
-        const addresses = document.getElementById("geocoderAddresses");
-        addresses.replaceChildren();
-        addresses.insertAdjacentHTML(
-          "afterbegin",
-          `<div class="text-danger">
-          <i class="bi bi-exclamation-circle-fill"></i>
-          No se ha podido establecer la conexión con el servidor de mapas.
-        </div>`
+      //Creamos un enlace para cada dirección encontrada.
+      data.forEach((address) => {
+        list.insertAdjacentHTML(
+          "beforeend",
+          `
+          <a href="#" data-lat="${address.lat}" data-lon="${address.lon}" class="list-group-item list-group-item-action">
+            ${address.display_name}
+          </a>`
         );
       });
-  };
+
+      //Mostramos la lista de direcciones en el contenedor.
+      const addresses = document.getElementById("geocoderAddresses");
+      addresses.replaceChildren();
+      addresses.append(list);
+
+      // Manejamos el click cada enlace.
+      document.querySelectorAll(".list-group-item").forEach((link) => {
+        link.addEventListener("click", (event) => {
+          event.preventDefault(); 
+          document
+            .querySelectorAll(".list-group-item")
+            .forEach((lnk) => lnk.classList.remove("active"));
+          event.currentTarget.classList.add("active");
+
+          //Creamos o actualizamos el mapa con la ubicación seleccionada
+          if (map) {
+            //Si ya existe el mapa, establecemos la ista y añadimos el marcador.
+            map.setView(
+              new L.LatLng(
+                event.currentTarget.dataset.lat,
+                event.currentTarget.dataset.lon
+              ),
+              15
+            );
+            L.marker([
+              event.currentTarget.dataset.lat,
+              event.currentTarget.dataset.lon,
+            ]).addTo(map);
+          } else {
+            //Si no existe el mapa, creamos un nuevo mapa y agregamos el marcador.
+            const mapContainer = document.getElementById("geocoderMap");
+            mapContainer.innerHTML = "";
+            mapContainer.style.height = "350px";
+            mapContainer.style.border = "2px solid #faa541";
+
+            map = L.map("geocoderMap").setView(
+              [
+                event.currentTarget.dataset.lat,
+                event.currentTarget.dataset.lon,
+              ],
+              15
+            );
+            L.tileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+              attribution:
+                'Datos del mapa &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contribuyentes, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imágenes © <a href="http://cloudmade.com">CloudMade</a>',
+              maxZoom: 18,
+            }).addTo(map);
+            L.marker([
+              event.currentTarget.dataset.lat,
+              event.currentTarget.dataset.lon,
+            ]).addTo(map);
+          }
+
+          //Agregar marcadores para todos los restaurantes en el mapa
+          for (const restaurant of restaurants) {
+            const marker = L.marker([
+              restaurant.location.latitude,
+              restaurant.location.longitude,
+            ]).addTo(map);
+            marker.bindPopup(`<b>${restaurant.name}</b><br>${restaurant.description}`);
+          } 
+
+          event.preventDefault();
+        });
+      });
+    })
+    .catch((error) => {
+      //Manejamos los errores de conexión con el servidor de mapas.
+      console.error("Error al conectar con el servidor de mapas:", error);
+      const addresses = document.getElementById("geocoderAddresses");
+      addresses.replaceChildren();
+      addresses.insertAdjacentHTML(
+        "afterbegin",
+        `<div class="text-danger">
+        <i class="bi bi-exclamation-circle-fill"></i>
+        No se ha podido establecer la conexión con el servidor de mapas.
+      </div>`
+      );
+    });
+};
+
 }
 
 //Exportamos la clase RestaurantController.

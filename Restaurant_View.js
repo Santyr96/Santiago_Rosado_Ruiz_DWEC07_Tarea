@@ -1103,6 +1103,7 @@ mx-2 flex-column" style="text-align: right">
     });
   }
 
+/**Método para mostrar el modal que proporcionará el mensaje de si se ha creado con el éxito el backup. */ 
   showBackupModal(done) {
     const messageModalContainer = document.getElementById("messageModal");
     const messageModal = new bootstrap.Modal("#messageModal");
