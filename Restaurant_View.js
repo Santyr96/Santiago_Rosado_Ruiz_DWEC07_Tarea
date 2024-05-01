@@ -1578,7 +1578,7 @@ mx-2 flex-column" style="text-align: right">
   }
 
   //Método para mostrar retroalimentación al asignar un plato a un menú.
-  showAssignDishModal(done, dish, error) {
+  showAssignDishModal(done, dish, error,menus) {
     const productList = document.getElementById("menusList");
     const messageModalContainer = document.getElementById("messageModal");
     const messageModal = new bootstrap.Modal("#messageModal");
@@ -1622,10 +1622,7 @@ mx-2 flex-column" style="text-align: right">
     messageModal.show();
     const listener = (event) => {
       if (done) {
-        const button = productList.querySelector(
-          `a.btn[data-name="${dish.name}"]`
-        );
-        button.parentElement.parentElement.parentElement.remove();
+        this.showMenusWithDish(dish.name, menus);
       }
     };
     messageModalContainer.addEventListener("hidden.bs.modal", listener, {
@@ -1634,7 +1631,7 @@ mx-2 flex-column" style="text-align: right">
   }
 
   //Método para mostrar retroalimentación al desasignar un plato a un menú.
-  showDesassignDishModal(done, dish, error) {
+  showDesassignDishModal(done, dish, error, menus) {
     const productList = document.getElementById("menusList");
     const messageModalContainer = document.getElementById("messageModal");
     const messageModal = new bootstrap.Modal("#messageModal");
@@ -1678,10 +1675,7 @@ mx-2 flex-column" style="text-align: right">
     messageModal.show();
     const listener = (event) => {
       if (done) {
-        const button = productList.querySelector(
-          `a.btn[data-name="${dish.name}"]`
-        );
-        button.parentElement.parentElement.parentElement.remove();
+        this.showMenusWithDish(dish.name, menus);
       }
     };
     messageModalContainer.addEventListener("hidden.bs.modal", listener, {
